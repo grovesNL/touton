@@ -18,7 +18,7 @@ gulp.task('test', ['lint'], function() {
 		.pipe(mocha({ reporter: 'spec' }));
 });
 
-gulp.task('compress-js', ['clean'], function() {
+gulp.task('compress-js', ['test'], function() {
 	return gulp.src(['src/touton.js'])
 		.pipe(gulp.dest('dist'))
 		.pipe(sourcemaps.init())
@@ -28,16 +28,16 @@ gulp.task('compress-js', ['clean'], function() {
 		.pipe(gulp.dest('dist'));
 });
 
-gulp.task('compress-json', ['clean'], function() {
+gulp.task('compress-json', ['test'], function() {
 	return gulp.src(['src/operators.json'])
 		.pipe(rename('operators.min.json'))
 		.pipe(jsonminify())
 		.pipe(gulp.dest('dist'));
 })
 
-gulp.task('copy-static-content', ['clean'], function() {
+gulp.task('copy-static-content', ['test'], function() {
 	return gulp.src(['src/**/*.html', 'src/**/*.css'])
 		.pipe(gulp.dest('dist'));
 });
 
-gulp.task('default', ['lint', 'test', 'clean', 'compress-js', 'compress-json', 'copy-static-content']);
+gulp.task('default', ['lint', 'test', 'compress-js', 'compress-json', 'copy-static-content']);

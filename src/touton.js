@@ -12,8 +12,8 @@
 
 		/*eslint-disable no-unused-vars*/
 		var environment = (function () {
-			/*eslint-enable no-unused-vars*/
-		var $e = {};
+		/*eslint-enable no-unused-vars*/
+			var $e = {};
 
 			function isNumber(value) {
 				return typeof value === 'number';
