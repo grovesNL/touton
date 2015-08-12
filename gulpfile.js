@@ -4,8 +4,7 @@ var gulp = require('gulp'),
 	uglify = require('gulp-uglify'),
 	sourcemaps = require('gulp-sourcemaps'),
 	rename = require('gulp-rename'),
-	jsonminify = require('gulp-jsonminify'),
-	clean = require('gulp-clean');
+	jsonminify = require('gulp-jsonminify');
 
 gulp.task('lint', function() {
 	return gulp.src(['src/**/*.js'])
@@ -15,15 +14,8 @@ gulp.task('lint', function() {
 });
 
 gulp.task('test', ['lint'], function() {
-	return gulp.src(['test/test-*.js'], { read: false })
-		.pipe(mocha({
-			reporter: 'spec'
-		}));
-});
-
-gulp.task('clean', ['test'], function() {
-	return gulp.src('dist', {read: false})
-		.pipe(clean());
+	return gulp.src(['test/*.js'], { read: false })
+		.pipe(mocha({ reporter: 'spec' }));
 });
 
 gulp.task('compress-js', ['clean'], function() {
