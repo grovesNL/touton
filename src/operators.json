@@ -1,0 +1,1350 @@
+[
+	{
+		"symbol": "!",
+		"arity": 1,
+		"variants":
+			[
+				{
+					"name": "Not",
+					"arguments": 
+						[
+							{"name": "value", "type": ["number", "string", "array"]}
+						],
+					"description": "Evaluates JavaScript's Not (!) operator on value."
+				}
+			]
+	},
+	{
+		"symbol" : "%",
+		"arity": 2,
+		"variants":
+			[
+				{
+					"name": "Modulus",
+					"arguments":
+						[
+							{"name": "dividend", "type": ["number"]},
+							{"name": "divisor", "type": ["number"]}
+						],
+					"description": "Divides the dividend by the divisor and returns the remainder."
+				}
+			]
+	},
+	{
+		"symbol": ";",
+		"arity": 0,
+		"variants":
+			[
+				{
+					"name": "Semi-colon",
+					"arguments": 
+						[
+						],
+					"description": "Places a semi-colon at the location specified."
+				}
+			]
+	},
+	{
+		"symbol": "&",
+		"arity": 2,
+		"variants":
+			[
+				{
+					"name": "And",
+					"arguments":
+						[
+							{"name": "left", "type": ["number", "string", "array", "boolean"]},
+							{"name": "right", "type": ["number", "string", "array", "boolean"]}
+						],
+					"description": "Evaluates JavaScript's And (&&) operator on left and right."
+				}
+			]
+	},
+	{
+		"symbol": "*",
+		"arity": 2,
+		"variants":
+			[
+				{
+					"name": "Multiply",
+					"arguments":
+						[
+							{"name": "left", "type": ["number", "array"]},
+							{"name": "right", "type": ["number", "array"]}
+						],
+					"description": "Multiplies left by right when either argument is a number and the other is a number or array."
+				},
+				{
+					"name": "Repeat",
+					"arguments":
+						[
+							{"name": "value", "type": ["string"]},
+							{"name": "repetitions", "type": ["number"]}
+						],
+					"description": "Returns value repeated for provided number of repetitions."
+				},
+				{
+					"name": "Cartesian product",
+					"arguments":
+						[
+							{"name": "left", "type": ["array", "string"]},
+							{"name": "right", "type": ["array", "string"]}
+						],
+					"description": "Returns the cartesian product of left and right if both types are identical."
+				}
+			]
+	},
+	{
+		"symbol": "+",
+		"arity": 2,
+		"variants":
+			[
+				{
+					"name": "Add",
+					"arguments":
+						[
+							{"name": "left", "type": ["number", "string"]},
+							{"name": "right", "type": ["number", "string"]}
+						],
+					"description": "Adds left to right."
+				},
+				{
+					"name": "Concatenate",
+					"arguments":
+						[
+							{"name": "left", "type": ["array"]},
+							{"name": "right", "type": ["array"]}
+						],
+					"description": "Concatenates left and right."
+				},
+				{
+					"name": "Push",
+					"arguments":
+						[
+							{"name": "arr", "type": ["array"]},
+							{"name": "value", "type": ["number", "string"]}
+						],
+					"description": "Appends the value to the end of the arr."
+				},
+				{
+					"name": "Unshift",
+					"arguments":
+						[
+							{"name": "value", "type": ["number", "string"]},
+							{"name": "arr", "type": ["array"]}
+						],
+					"description": "Inserts the value at the beginning of arr."
+				}
+			]
+	},
+	{
+		"symbol": ",",
+		"arity": 2,
+		"variants":
+			[
+				{
+					"name": "Pair",
+					"arguments":
+						[
+							{"name": "left", "type": ["number", "string", "array"]},
+							{"name": "right", "type": ["number", "string", "array"]}
+						],
+					"description": "Returns a two-element array containing left and right."
+				}
+			]
+	},
+	{
+		"symbol": "-",
+		"arity": 2,
+		"variants":
+			[
+				{
+					"name": "Subtract",
+					"arguments":
+						[
+							{"name": "left", "type": ["number", "string"]},
+							{"name": "right", "type": ["number", "string"]}
+						],
+					"description": "Subtracts right from left."
+				},
+				{
+					"name": "Remove",
+					"arguments":
+						[
+							{"name": "arr", "type": ["array"]},
+							{"name": "value", "type": ["number", "string"]}
+						],
+					"description": "If value can be found in arr, the first instance is removed."
+				}
+			]
+	},
+	{
+		"symbol": "/",
+		"arity": 2,
+		"variants":
+			[
+				{
+					"name": "Divide",
+					"arguments":
+						[
+							{"name": "dividend", "type": ["number", "array"]},
+							{"name": "divisor", "type": ["number", "array"]}
+						],
+					"description": "Divides each element of the dividend by the divisor."
+				},
+				{
+					"name": "Split",
+					"arguments":
+						[
+							{"name": "value", "type": ["string"]},
+							{"name": "separator", "type": ["string", "number"]}
+						],
+					"description": "Returns an array of value split by separator."
+				}
+			]
+	},
+	{
+		"symbol": "<",
+		"arity": 2,
+		"variants":
+			[
+				{
+					"name": "Less than",
+					"arguments":
+						[
+							{"name": "left", "type": ["number", "string"]},
+							{"name": "right", "type": ["number", "string"]}
+						],
+					"description": "Tests whether left is less than right using the default JavaScript comparator."
+				},
+				{
+					"name": "Lower slice",
+					"arguments":
+						[
+							{"name": "arr", "type": ["array"]},
+							{"name": "num", "type": ["number"]}
+						],
+					"description": "Returns the first num elements of arr."
+				}
+			]
+	},
+	{
+		"symbol": "=",
+		"arity": 2,
+		"variants":
+			[
+				{
+					"name": "Assign",
+					"arguments":
+						[
+							{"name": "symbol", "type": ["variable"]},
+							{"name": "value", "type": ["number", "string", "array"]}
+						],
+					"description": "Assigns value to variable symbol."
+				}
+			]
+	},
+	{
+		"symbol": ">",
+		"arity": 2,
+		"variants":
+			[
+				{
+					"name": "Greater than",
+					"arguments":
+						[
+							{"name": "left", "type": ["number", "string"]},
+							{"name": "right", "type": ["number", "string"]}
+						],
+					"description": "Tests whether left is greater than right using the default JavaScript comparator."
+				},
+				{
+					"name": "Upper slice",
+					"arguments":
+						[
+							{"name": "arr", "type": ["array"]},
+							{"name": "num", "type": ["number"]}
+						],
+					"description": "Returns the last num elements of arr."
+				}
+			]
+	},
+	{
+		"symbol": "?",
+		"arity": 3,
+		"variants":
+			[
+				{
+					"name": "Ternary",
+					"arguments":
+						[
+							{"name": "valueWhenTrue", "type": ["number", "string", "array", "boolean"]},
+							{"name": "condition", "type": ["boolean", "string", "number", "array"]},
+							{"name": "valueWhenFalse", "type": ["number", "string", "array", "boolean"]}
+						],
+					"description": "Returns valueWhenTrue if condition is truthy in JavaScript, otherwise returns valueWhenFalse."
+				}
+			]
+	},
+	{
+		"symbol": "@",
+		"arity": 2,
+		"variants":
+			[
+				{
+					"name": "Get value at index",
+					"arguments":
+						[
+							{"name": "lookup", "type": ["array", "string"]},
+							{"name": "index", "type": ["number"]}
+						],
+					"description": "Returns the value at lookup[index]."
+				}
+			]
+	},
+	{
+		"symbol": "A&",
+		"arity": 1,
+		"variants":
+			[
+				{
+					"name": "Pair &",
+					"arguments":
+						[
+							{"name": "pair", "type": ["array"]}
+						],
+					"description": "Evaluates & operator on pair[0] and pair[1]."
+				}
+			]
+	},
+	{
+		"symbol": "A%",
+		"arity": 1,
+		"variants":
+			[
+				{
+					"name": "Pair %",
+					"arguments":
+						[
+							{"name": "pair", "type": ["array"]}
+						],
+					"description": "Evaluates % operator on pair[0] and pair[1]."
+				}
+			]
+	},
+	{
+		"symbol": "A*",
+		"arity": 1,
+		"variants":
+			[
+				{
+					"name": "Pair *",
+					"arguments":
+						[
+							{"name": "pair", "type": ["array"]}
+						],
+					"description": "Evaluates * operator on pair[0] and pair[1]."
+				}
+			]
+	},
+	{
+		"symbol": "A+",
+		"arity": 1,
+		"variants":
+			[
+				{
+					"name": "Pair +",
+					"arguments":
+						[
+							{"name": "pair", "type": ["array"]}
+						],
+					"description": "Evaluates + operator on pair[0] and pair[1]."
+				}
+			]
+	},
+	{
+		"symbol": "A-",
+		"arity": 1,
+		"variants":
+			[
+				{
+					"name": "Pair -",
+					"arguments":
+						[
+							{"name": "pair", "type": ["array"]}
+						],
+					"description": "Evaluates - operator on pair[0] and pair[1]."
+				}
+			]
+	},
+	{
+		"symbol": "A/",
+		"arity": 1,
+		"variants":
+			[
+				{
+					"name": "Pair /",
+					"arguments":
+						[
+							{"name": "pair", "type": ["array"]}
+						],
+					"description": "Evaluates / operator on pair[0] and pair[1]."
+				}
+			]
+	},
+	{
+		"symbol": "A^",
+		"arity": 1,
+		"variants":
+			[
+				{
+					"name": "Pair ^",
+					"arguments":
+						[
+							{"name": "pair", "type": ["array"]}
+						],
+					"description": "Evaluates ^ operator on pair[0] and pair[1]."
+				}
+			]
+	},
+	{
+		"symbol": "A<",
+		"arity": 1,
+		"variants":
+			[
+				{
+					"name": "Pair <",
+					"arguments":
+						[
+							{"name": "pair", "type": ["array"]}
+						],
+					"description": "Evaluates < operator on pair[0] and pair[1]."
+				}
+			]
+	},
+	{
+		"symbol": "A=",
+		"arity": 3,
+		"variants":
+			[
+				{
+					"name": "Pair assign",
+					"arguments":
+						[
+							{"name": "variableOne", "type": ["variable"]},
+							{"name": "pair", "type": ["array"]},
+							{"name": "variableTwo", "type": ["variable"]}
+						],
+					"description": "Assigns pair[0] to variableOne and pair[1] to variableTwo.."
+				}
+			]
+	},
+	{
+		"symbol": "A>",
+		"arity": 1,
+		"variants":
+			[
+				{
+					"name": "Pair >",
+					"arguments":
+						[
+							{"name": "pair", "type": ["array"]}
+						],
+					"description": "Evaluates > operator on pair[0] and pair[1]."
+				}
+			]
+	},
+	{
+		"symbol": "A?",
+		"arity": 2,
+		"variants":
+			[
+				{
+					"name": "Pair ternary",
+					"arguments":
+						[
+							{"name": "condition", "type": ["boolean"]},
+							{"name": "pair", "type": ["array"]}
+						],
+					"description": "Returns pair[0] if condition is truthy, otherwise pair[1]."
+				}
+			]
+	},
+	{
+		"symbol": "AP",
+		"arity": 1,
+		"variants":
+			[
+				{
+					"name": "Pick random",
+					"arguments":
+						[
+							{"name": "arr", "type": ["array"]}
+						],
+					"description": "Returns a random element from arr."
+				}
+			]
+	},
+	{
+		"symbol": "Af",
+		"arity": 1,
+		"variants":
+			[
+				{
+					"name": "Flatten",
+					"arguments":
+						[
+							{"name": "arr", "type": ["array"]}
+						],
+					"description": "Returns flattened arr."
+				}
+			]
+	},
+	{
+		"symbol": "Aq",
+		"arity": 1,
+		"variants":
+			[
+				{
+					"name": "Pair m",
+					"arguments":
+						[
+							{"name": "pair", "type": ["array"]}
+						],
+					"description": "Evaluates m operator on pair[0] and pair[1]."
+				}
+			]
+	},
+	{
+		"symbol": "A|",
+		"arity": 1,
+		"variants":
+			[
+				{
+					"name": "Pair |",
+					"arguments":
+						[
+							{"name": "pair", "type": ["array"]}
+						],
+					"description": "Evaluates | operator on pair[0] and pair[1]."
+				}
+			]
+	},
+	{
+		"symbol": "A~",
+		"arity": 1,
+		"variants":
+			[
+				{
+					"name": "Pair ~",
+					"arguments":
+						[
+							{"name": "pair", "type": ["array"]}
+						],
+					"description": "Evaluates ~ operator on pair[0] and pair[1]."
+				}
+			]
+	},
+	{
+		"symbol": "C",
+		"arity": 1,
+		"variants":
+			[
+				{
+					"name": "Change case",
+					"arguments":
+						[
+							{"name": "str", "type": ["string"]}
+						],
+					"description": "Changes the case of each character in str."
+				}
+			]
+	},
+	{
+		"symbol": "E",
+		"arity": 3,
+		"variants":
+			[
+				{
+					"name": "For each",
+					"arguments":
+						[
+							{"name": "enumerable", "type": ["array", "string", "number"]},
+							{"name": "element", "type": ["variable"]},
+							{"name": "action", "type": ["number", "string", "boolean", "array"]}
+						],
+					"description": "Executes a for loop using enumerable, assigning each value to element and then performing action."
+				}
+			]
+	},
+	{
+		"symbol": "F",
+		"arity": 0,
+		"variants":
+			[
+				{
+					"name": "False",
+					"arguments":
+						[
+						],
+					"description": "Returns false."
+				}
+			]
+	},
+	{
+		"symbol": "Gb",
+		"arity": 0,
+		"variants":
+			[
+				{
+					"name": "Break",
+					"arguments":
+						[
+						],
+					"description": "Includes a break in the current execution path."
+				}
+			]
+	},
+	{
+		"symbol": "Gc",
+		"arity": 0,
+		"variants":
+			[
+				{
+					"name": "Continue",
+					"arguments":
+						[
+						],
+					"description": "Includes a continue in the current execution path."
+				}
+			]
+	},
+	{
+		"symbol": "I",
+		"arity": 2,
+		"variants":
+			[
+				{
+					"name": "Index of",
+					"arguments":
+						[
+							{"name": "lookup", "type": ["array", "string"]},
+							{"name": "value", "type": ["number", "string"]}
+						],
+					"description": "Returns the index of value in lookup."
+				}
+			]
+	},
+	{
+		"symbol": "M!",
+		"arity": 1,
+		"variants":
+			[
+				{
+					"name": "Factorial",
+					"arguments":
+						[
+							{"name": "num", "type": ["number"]}
+						],
+					"description": "Returns the factorial of num."
+				}
+			]
+	},
+	{
+		"symbol": "M_",
+		"arity": 1,
+		"variants":
+			[
+				{
+					"name": "Sign",
+					"arguments":
+						[
+							{"name": "num", "type": ["number"]}
+						],
+					"description": "Returns the sign of num."
+				}
+			]
+	},
+	{
+		"symbol": "MC",
+		"arity": 1,
+		"variants":
+			[
+				{
+					"name": "Inverse cosine",
+					"arguments":
+						[
+							{"name": "num", "type": ["number"]}
+						],
+					"description": "Returns the inverse cosine of num."
+				}
+			]
+	},
+	{
+		"symbol": "MM",
+		"arity": 1,
+		"variants":
+			[
+				{
+					"name": "Maximum",
+					"arguments":
+						[
+							{"name": "arr", "type": ["array"]}
+						],
+					"description": "Returns the maximum value of arr."
+				}
+			]
+	},
+	{
+		"symbol": "MR",
+		"arity": 2,
+		"variants":
+			[
+				{
+					"name": "Radix",
+					"arguments":
+						[
+							{"name": "value", "type": ["number", "string"]},
+							{"name": "radix", "type": ["number"]}
+						],
+					"description": "Returns the value in the specified radix."
+				}
+			]
+	},
+	{
+		"symbol": "MS",
+		"arity": 1,
+		"variants":
+			[
+				{
+					"name": "Inverse sine",
+					"arguments":
+						[
+							{"name": "num", "type": ["number"]}
+						],
+					"description": "Returns the inverse sine of num."
+				}
+			]
+	},
+	{
+		"symbol": "MT",
+		"arity": 1,
+		"variants":
+			[
+				{
+					"name": "Inverse tangent",
+					"arguments":
+						[
+							{"name": "x", "type": ["number"]},
+							{"name": "y", "type": ["number"]}
+						],
+					"description": "Returns the inverse tangent of value while considering quadrant."
+				}
+			]
+	},
+	{
+		"symbol": "M]",
+		"arity": 1,
+		"variants":
+			[
+				{
+					"name": "Ceiling",
+					"arguments":
+						[
+							{"name": "num", "type": ["number"]}
+						],
+					"description": "Returns the ceiling of num."
+				}
+			]
+	},
+	{
+		"symbol": "M[",
+		"arity": 1,
+		"variants":
+			[
+				{
+					"name": "Floor",
+					"arguments":
+						[
+							{"name": "num", "type": ["number"]}
+						],
+					"description": "Returns the floor of num."
+				}
+			]
+	},
+	{
+		"symbol": "Ma",
+		"arity": 1,
+		"variants":
+			[
+				{
+					"name": "Absolute value",
+					"arguments":
+						[
+							{"name": "num", "type": ["number"]}
+						],
+					"description": "Returns the absolute value of num."
+				}
+			]
+	},
+	{
+		"symbol": "Mb",
+		"arity": 1,
+		"variants":
+			[
+				{
+					"name": "Clamp",
+					"arguments":
+						[
+							{"name": "lowerBound", "type": ["number"]},
+							{"name": "num", "type": ["number"]},
+							{"name": "upperBound", "type": ["number"]}
+						],
+					"description": "Returns num clamped to [lowerBound, upperBound]."
+				}
+			]
+	},
+	{
+		"symbol": "Mc",
+		"arity": 1,
+		"variants":
+			[
+				{
+					"name": "Cosine",
+					"arguments":
+						[
+							{"name": "num", "type": ["number"]}
+						],
+					"description": "Returns the cosine of num."
+				}
+			]
+	},
+	{
+		"symbol": "Mm",
+		"arity": 1,
+		"variants":
+			[
+				{
+					"name": "Minimum",
+					"arguments":
+						[
+							{"name": "arr", "type": ["array"]}
+						],
+					"description": "Returns the minimum value of arr."
+				}
+			]
+	},
+	{
+		"symbol": "Mo",
+		"arity": 1,
+		"variants":
+			[
+				{
+					"name": "Round to nearest integer",
+					"arguments":
+						[
+							{"name": "num", "type": ["number"]}
+						],
+					"description": "Returns num rounded to the nearest integer."
+				}
+			]
+	},
+	{
+		"symbol": "Mq",
+		"arity": 1,
+		"variants":
+			[
+				{
+					"name": "Square root",
+					"arguments":
+						[
+							{"name": "num", "type": ["number"]}
+						],
+					"description": "Returns the square root of num."
+				}
+			]
+	},
+	{
+		"symbol": "Mr",
+		"arity": 0,
+		"variants":
+			[
+				{
+					"name": "Random",
+					"arguments":
+						[
+						],
+					"description": "Returns a random number in the range [0, 1]."
+				}
+			]
+	},
+	{
+		"symbol": "Ms",
+		"arity": 1,
+		"variants":
+			[
+				{
+					"name": "Sine",
+					"arguments":
+						[
+							{"name": "num", "type": ["number"]}
+						],
+					"description": "Returns the sine of num."
+				}
+			]
+	},
+	{
+		"symbol": "Mt",
+		"arity": 1,
+		"variants":
+			[
+				{
+					"name": "Tangent",
+					"arguments":
+						[
+							{"name": "num", "type": ["number"]}
+						],
+					"description": "Returns the tangent of num."
+				}
+			]
+	},
+	{
+		"symbol": "P",
+		"arity": 1,
+		"variants":
+			[
+				{
+					"name": "Pop",
+					"arguments":
+						[
+							{"name": "arr", "type": ["array"]}
+						],
+					"description": "Removes and returns the last element of arr."
+				},
+				{
+					"name": "Regular expression",
+					"arguments":
+						[
+							{"name": "str", "type": ["string"]}
+						],
+					"description": "Returns a regular expression created from str."
+				}
+			]
+	},
+	{
+		"symbol": "R",
+		"arity": 3,
+		"variants":
+			[
+				{
+					"name": "Replace",
+					"arguments":
+						[
+							{"name": "match", "type": ["string", "regex"]},
+							{"name": "original", "type": ["string"]},
+							{"name": "replacement", "type": ["string"]}
+						],
+					"description": "Searches original for instances of match and replaces with replacement."
+				}
+			]
+	},
+	{
+		"symbol": "T",
+		"arity": 0,
+		"variants":
+			[
+				{
+					"name": "True",
+					"arguments":
+						[
+						],
+					"description": "Returns true."
+				}
+			]
+	},
+	{
+		"symbol": "V",
+		"arity": 1,
+		"variants":
+			[
+				{
+					"name": "Evaluate",
+					"arguments":
+						[
+							{"name": "value", "type": ["number", "string", "boolean", "array"]}
+						],
+					"description": "Evaluates the value."
+				}
+			]
+	},
+	{
+		"symbol" : "\\",
+		"arity": 1,
+		"variants":
+			[
+				{
+					"name": "Escape",
+					"arguments":
+						[
+							{"name": "value", "type": ["string", "number"]}
+						],
+					"description": "Returns a string which contains the provided value."
+				}
+			]
+	},
+	{
+		"symbol" : "^",
+		"arity": 2,
+		"variants":
+			[
+				{
+					"name": "Power",
+					"arguments":
+						[
+							{"name": "value", "type": ["number"]},
+							{"name": "exponent", "type": ["number"]}
+						],
+					"description": "Raises value to the power of exponent."
+				}
+			]
+	},
+	{
+		"symbol": "_",
+		"arity": 1,
+		"variants":
+			[
+				{
+					"name": "Negate",
+					"arguments":
+						[
+							{"name": "num", "type": ["number"]}
+						],
+					"description": "Reverses the sign of num."
+				},
+				{
+					"name": "Reverse",
+					"arguments":
+						[
+							{"name": "value", "type": ["string", "array"]}
+						],
+					"description": "Reverses value."
+				}
+			]
+	},
+	{
+		"symbol": "`",
+		"arity": 3,
+		"variants":
+			[
+				{
+					"name": "Set value at index",
+					"arguments":
+						[
+							{"name": "lookup", "type": ["array", "string"]},
+							{"name": "index", "type": ["number"]},
+							{"name": "value", "type": ["number", "string", "boolean", "array"]}
+						],
+					"description": "Assigns lookup[index] = value."
+				}
+			]
+	},
+	{
+		"symbol": "c",
+		"arity": 1,
+		"variants":
+			[
+				{
+					"name": "Character code",
+					"arguments":
+						[
+							{"name": "value", "type": ["string"]}
+						],
+					"description": "Returns the character code of value."
+				}
+			]
+	},
+	{
+		"symbol": "d",
+		"arity": 3,
+		"variants":
+			[
+				{
+					"name": "Do",
+					"arguments":
+						[
+							{"name": "numberOfTimes", "type": ["string", "boolean", "array", "string", "number"]},
+							{"name": "var", "type": ["variable"]},
+							{"name": "expr", "type": ["expression"]}
+						],
+					"description": "Repeatedly Evaluates expr and assigns to var for numberOfTimes."
+				}
+			]
+	},
+	{
+		"symbol": "e",
+		"arity": 1,
+		"variants":
+			[
+				{
+					"name": "Exponential",
+					"arguments":
+						[
+							{"name": "num", "type": ["number"]}
+						],
+					"description": "Returns the exponential function evaluated at num."
+				},
+				{
+					"name": "End",
+					"arguments":
+						[
+							{"name": "value", "type": ["string", "array"]}
+						],
+					"description": "Returns the last element of value."
+				}
+			]
+	},
+	{
+		"symbol": "f",
+		"arity": 4,
+		"variants":
+			[
+				{
+					"name": "For loop",
+					"arguments":
+						[
+							{"name": "start", "type": ["string", "boolean", "array", "string", "number"]},
+							{"name": "var", "type": ["variable"]},
+							{"name": "end", "type": ["string", "boolean", "array", "string", "number"]},
+							{"name": "statement", "type": ["statement"]}
+						],
+					"description": "Iterates from var=start to end, performing statement each iteration."
+				}
+			]
+	},
+	{
+		"symbol": "h",
+		"arity": 1,
+		"variants":
+			[
+				{
+					"name": "Increment",
+					"arguments":
+						[
+							{"name": "num", "type": ["number"]}
+						],
+					"description": "Returns num incremented by one."
+				},
+				{
+					"name": "Head",
+					"arguments":
+						[
+							{"name": "value", "type": ["string", "array"]}
+						],
+					"description": "Returns the first element of value."
+				}
+			]
+	},
+	{
+		"symbol": "j",
+		"arity": 2,
+		"variants":
+			[
+				{
+					"name": "Join",
+					"arguments":
+						[
+							{"name": "arr", "type": ["array"]},
+							{"name": "value", "type": ["string", "number"]}
+						],
+					"description": "Returns a string of arr joined by value."
+				}
+			]
+	},
+	{
+		"symbol": "l",
+		"arity": 1,
+		"variants":
+			[
+				{
+					"name": "Natural logarithm",
+					"arguments":
+						[
+							{"name": "num", "type": ["number"]}
+						],
+					"description": "Returns the natural logarithm of num."
+				},
+				{
+					"name": "Length",
+					"arguments":
+						[
+							{"name": "value", "type": ["string", "array"]}
+						],
+					"description": "Returns the length of value."
+				}
+			]
+	},
+	{
+		"symbol": "m",
+		"arity": 3,
+		"variants":
+			[
+				{
+					"name": "Map",
+					"arguments":
+						[
+							{"name": "arr", "type": ["array"]},
+							{"name": "var", "type": ["variable"]},
+							{"name": "expr", "type": ["expression"]}
+						],
+					"description": "Applies expr to var for each element of arr."
+				}
+			]
+	},
+	{
+		"symbol": "p",
+		"arity": 1,
+		"variants":
+			[
+				{
+					"name": "Print",
+					"arguments":
+						[
+							{"name": "value", "type": ["array", "string", "boolean", "number"]}
+						],
+					"description": "Writes the value to the output stream."
+				}
+			]
+	},
+	{
+		"symbol": "q",
+		"arity": 2,
+		"variants":
+			[
+				{
+					"name": "Identical",
+					"arguments":
+						[
+							{"name": "left", "type": ["number", "string", "boolean", "array"]},
+							{"name": "right", "type": ["number", "string", "boolean", "array"]}
+						],
+					"description": "Tests whether left is exactly equal to right using JavaScript's Equal (===) operator."
+				}
+			]
+	},
+	{
+		"symbol": "r",
+		"arity": 1,
+		"variants":
+			[
+				{
+					"name": "Range",
+					"arguments":
+						[
+							{"name": "value", "type": ["array", "string", "number"]}
+						],
+					"description": "Returns a range created from the value provided."
+				}
+			]
+	},
+	{
+		"symbol": "s",
+		"arity": 1,
+		"variants":
+			[
+				{
+					"name": "Sum",
+					"arguments":
+						[
+							{"name": "arr", "type": ["array"]}
+						],
+					"description": "Returns the sum of the array."
+				}
+			]
+	},
+	{
+		"symbol": "t",
+		"arity": 1,
+		"variants":
+			[
+				{
+					"name": "Decrement",
+					"arguments":
+						[
+							{"name": "num", "type": ["number"]}
+						],
+					"description": "Returns num decremented by one."
+				},
+				{
+					"name": "Tail",
+					"arguments":
+						[
+							{"name": "value", "type": ["string", "array"]}
+						],
+					"description": "Returns the tail of value (all elements except the first)."
+				}
+			]
+	},
+	{
+		"symbol": "v",
+		"arity": 2,
+		"variants":
+			[
+				{
+					"name": "Element-wise add",
+					"arguments":
+						[
+							{"name": "left", "type": ["array"]},
+							{"name": "right", "type": ["array", "number", "string"]}
+						],
+					"description": "Adds each of the elements in left with the corresponding element in right."
+				}
+			]
+	},
+	{
+		"symbol": "w",
+		"arity": 1,
+		"variants":
+			[
+				{
+					"name": "Wrap with array",
+					"arguments":
+						[
+							{"name": "value", "type": ["number", "string", "array", "boolean"]}
+						],
+					"description": "Returns single element array containing value."
+				}
+			]
+	},
+	{
+		"symbol": "|",
+		"arity": 2,
+		"variants":
+			[
+				{
+					"name": "Or",
+					"arguments":
+						[
+							{"name": "left", "type": ["number", "string", "array", "boolean"]},
+							{"name": "right", "type": ["number", "string", "array", "boolean"]}
+						],
+					"description": "Evaluates JavaScript's Or (||) operator on the left and right arguments."
+				}
+			]
+	},
+	{
+		"symbol": "~",
+		"arity": 2,
+		"variants":
+			[
+				{
+					"name": "Compare",
+					"arguments":
+						[
+							{"name": "left", "type": ["number", "string"]},
+							{"name": "right", "type": ["number", "string"]}
+						],
+					"description": "Compares left to right using binary comparison on matching value types. Numeric collation is assumed for string comparisons."
+				}
+			]
+	}
+]

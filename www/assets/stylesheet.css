@@ -1,0 +1,67 @@
+body{
+	font-family:Arial;
+	padding:0;
+	margin:0;
+	font-size:9pt;
+	height:100%;
+}
+h1{
+	padding:0;
+	margin:0;
+	font-size:24px;
+}
+textarea{
+	padding:0;
+	margin:0;
+	white-space:-moz-pre-wrap;
+	white-space:-hp-pre-wrap;
+	white-space:-o-pre-wrap;
+	white-space:-pre-wrap;
+	white-space:pre-wrap;
+	white-space:pre-line;
+	word-wrap:break-word;
+	word-break:break-all;
+}
+input,button{
+	margin:10px;
+}
+#container{
+	padding:0;
+	margin:0;
+	width:50%;
+	top:0;
+	bottom:0;
+	position:fixed;
+	overflow-y:auto;
+	float:left;
+}
+#content{
+	padding:5px 15px;
+	text-align:center;
+}
+#code{
+	width:100%;
+	height:200px;
+}
+#input{
+	width:100%;
+	height:200px;
+}
+#output{
+	width:100%;
+	height:200px;
+}
+#run{
+}
+#reference{
+	/*border-left:#aaa 1px solid;*/
+	width:50%;
+	float:right;
+	font-size:9pt;
+}
+#reference table tr:first-child td{
+	font-weight:bold;
+}
+#operators{
+	padding:5px;
+}

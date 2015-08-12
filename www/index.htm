@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8">
+		<meta http-equiv="X-UA-Compatible" content="IE=edge">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<title>Touton Interpreter</title>
+		<script src="assets/touton.min.js"></script>
+		<link rel="stylesheet" type="text/css" href="assets/stylesheet.css"></script>
+	</head>
+	<body>
+		<div id="container">
+			<div id="content">
+				<h1>Touton Interpreter</h1>
+				<textarea id="code" placeholder="Code"></textarea><br />
+				<span id="characters">0</span> characters
+				<textarea id="input" placeholder="Input"></textarea><br />
+				<input type="checkbox" id="debug" name="debug" value="Debug Mode"><label for="debug">Debug Mode</label>
+				<button onclick="permalink()" id="run" title="Get permalink">Permalink</button>
+				<button onclick="run()" id="run" title="Run the code">Run</button><br />
+				<textarea id="output" placeholder="Output"></textarea>
+			</div>
+		</div>
+		<div id="reference">
+			<div id="operators">
+			</div>
+		</div>
+		<script type="text/javascript">
+			var divCode = document.getElementById('code'),
+				divInput = document.getElementById('input'),
+				divOutput = document.getElementById('output'),
+				checkboxDebug = document.getElementById('debug'),
+				spanCharacters = document.getElementById('characters');
+
+			function run() {
+				divOutput.value = '';
+				touton({
+					expression: divCode.value,
+					input: JSON.parse('[' + divInput.value + ']'),
+					print: function(output) {divOutput.value += output;},
+					debug: checkboxDebug.checked
+				})
+			}
+			
+			function countCharacters() {
+				spanCharacters.innerText = divCode.value.length;
+			}
+			
+			function populateOperators(operators) {
+				var i,
+					j,
+					k,
+					description,
+					operatorTable = '<table><tr><td>Symbol</td><td>Arity</td><td>Name</td><td>Arguments</td><td>Description</td></tr>';
+				operators = JSON.parse(operators);
+				
+				for (i = 0; i < operators.length; i++) {
+					for (j = 0; j < operators[i].variants.length; j++) {
+						operatorTable += '<tr><td>' + operators[i].symbol + '</td><td>' + operators[i].arity + '</td><td>' + operators[i].variants[j].name + '</td><td>';
+						description = operators[i].variants[j].description;
+						for (k = 0; k < operators[i].variants[j].arguments.length; k++) {
+							operatorTable += operators[i].variants[j].arguments[k].name + ' (' + operators[i].variants[j].arguments[k].type.join('|') + ')';
+							description = description.replace(new RegExp(operators[i].variants[j].arguments[k].name, 'g'), '<b>' + operators[i].variants[j].arguments[k].name + '</b>');
+							if (k !== operators[i].variants[j].arguments.length - 1) {
+								operatorTable += ',<br />';
+							}
+						}
+						operatorTable += '</td><td>' + description + '</td></tr>';
+					}
+				}
+				
+				operatorTable += '</table>';
+				
+				document.getElementById('operators').innerHTML = operatorTable;
+			}
+			
+			function requestOperators() {
+				var request = new XMLHttpRequest();
+				request.overrideMimeType('application/json');
+				request.open('GET', 'assets/operators.min.json', true);
+				request.onreadystatechange = function () {
+					if (request.readyState === 4 && request.status === 200) {
+						populateOperators(request.responseText);
+					}
+				}
+				request.send(null);
+			}
+			
+			divCode.addEventListener('input', countCharacters);
+			requestOperators();
+		</script>
+	</body>
+</html>
