@@ -2,9 +2,10 @@ var gulp = require('gulp'),
 	mocha = require('gulp-mocha'),
 	eslint = require('gulp-eslint'),
 	uglify = require('gulp-uglify'),
-	sourcemaps = require('gulp-sourcemaps')
-	rename = require('gulp-rename')
-	jsonminify = require('gulp-jsonminify');
+	sourcemaps = require('gulp-sourcemaps'),
+	rename = require('gulp-rename'),
+	jsonminify = require('gulp-jsonminify'),
+	clean = require('gulp-clean');
 
 gulp.task('lint', function() {
 	return gulp.src(['src/**/*.js'])
@@ -20,21 +21,31 @@ gulp.task('test', ['lint'], function() {
 		}));
 });
 
-gulp.task('compress-js', ['test'], function() {
+gulp.task('clean', ['test'], function() {
+	return gulp.src('dist', {read: false})
+		.pipe(clean());
+});
+
+gulp.task('compress-js', ['clean'], function() {
 	return gulp.src(['src/touton.js'])
-		.pipe(gulp.dest('www/assets'))
+		.pipe(gulp.dest('dist'))
 		.pipe(sourcemaps.init())
 		.pipe(uglify())
 		.pipe(rename('touton.min.js'))
 		.pipe(sourcemaps.write('./'))
-		.pipe(gulp.dest('www/assets'));
+		.pipe(gulp.dest('dist'));
 });
 
-gulp.task('compress-json', ['test'], function() {
+gulp.task('compress-json', ['clean'], function() {
 	return gulp.src(['src/operators.json'])
 		.pipe(rename('operators.min.json'))
 		.pipe(jsonminify())
-		.pipe(gulp.dest('www/assets'));
+		.pipe(gulp.dest('dist'));
 })
 
-gulp.task('default', ['lint', 'test', 'compress-js', 'compress-json']);
+gulp.task('copy-static-content', ['clean'], function() {
+	return gulp.src(['src/**/*.html', 'src/**/*.css'])
+		.pipe(gulp.dest('dist'));
+});
+
+gulp.task('default', ['lint', 'test', 'clean', 'compress-js', 'compress-json', 'copy-static-content']);

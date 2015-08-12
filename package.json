@@ -4,6 +4,7 @@
   "main": "src/touton.js",
   "devDependencies": {
     "gulp": "^3.9.0",
+    "gulp-clean": "^0.3.1",
     "gulp-eslint": "^1.0.0",
     "gulp-jsonminify": "^1.0.0",
     "gulp-mocha": "^2.1.3",
