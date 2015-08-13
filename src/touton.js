@@ -600,6 +600,9 @@
 				if (result === undefined) {
 					result = '';
 				}
+				if (isArray(a)) {
+					a = JSON.stringify(a);
+				}
 				print(a + '\n');
 				return result;
 			};
@@ -817,7 +820,7 @@
 					read();
 					addToken('string', '"' + string + '"', !isWhiteSpace(previousCharacter));
 				} else {
-					error('Unable to recognize token.');
+					error('Unable to recognize token "' + character + '"');
 				}
 			}
 			return tokens;
@@ -1034,7 +1037,7 @@
 			} else if (options.input.length === 1) {
 				variables.i = options.input[0];
 			} else {
-				variables.i = options.input.slice(0);
+				variables.i = options.input;
 			}
 
 			variables.X = 0;
