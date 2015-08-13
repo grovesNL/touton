@@ -937,14 +937,14 @@
 				return max + '=' + a + ';for(' + i + '=0;' + i + '<' + max + ';' + i + '++){' + b + '=' + c + ';}';
 			});
 			operator('e', 1, true, -1, function (a) { return 't.expEnd(' + a + ')'; });
-			operator('f', 4, false, 3, function (a, b, c, d) {
+			operator('f', 4, false, 4, function (a, b, c, d) {
 				var max = getVariable();
 				return max + '=' + c + ';for(' + b + '=' + a + ';' + b + '<' + max + ';' + b + '++){' + d + '}';
 			});
 			operator('h', 1, true, -1, function (a) { return 't.head(' + a + ')'; });
 			operator('j', 2, true, -1, function (a, b) { return 't.join(' + a + ',' + b + ')'; });
 			operator('l', 1, true, -1, function (a) { return 't.lnLength(' + a + ')'; });
-			operator('m', 3, true, 2, function (a, b, c) {
+			operator('m', 3, true, -1, function (a, b, c) {
 				return 't.range(' + a + ').map(function(' + b + '){return ' + c + ';})';
 			});
 			operator('p', 1, false, -1, function (a) { return 't.print(' + a + ');'; });
@@ -952,7 +952,7 @@
 			operator('r', 1, true, -1, function (a) { return 't.range(' + a + ')'; });
 			operator('s', 1, true, -1, function (a) { return 't.sum(' + a + ')'; });
 			operator('t', 1, true, -1, function (a) { return 't.tail(' + a + ')'; });
-			operator('u', 3, false, 2, function (a, b, c) {
+			operator('u', 3, false, 3, function (a, b, c) {
 				var max = getVariable();
 				return max + '=' + b + ';for(' + a + '=0;' + a + '<' + max + ';' + a + '++){' + c + '}';
 			});
