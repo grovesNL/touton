@@ -3,6 +3,9 @@
 .gitignore
 .travis.yml
 gulpfile.js
+*.html
+*.css
+*.json
 test
 node_modules
 dist
