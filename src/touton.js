@@ -712,7 +712,7 @@
 				var i = 1;
 				a = $e.normalize(a);
 				b = $e.normalize(b);
-				if (isString(a) && isString(b)) {
+				if (isString(a) && isNumber(b)) {
 					while (i < b) {
 						a += a;
 						i += i;
