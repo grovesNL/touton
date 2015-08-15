@@ -30,7 +30,14 @@
 				divInput = document.getElementById('input'),
 				divOutput = document.getElementById('output'),
 				checkboxDebug = document.getElementById('debug'),
-				spanCharacters = document.getElementById('characters');
+				spanCharacters = document.getElementById('characters'),
+				parameters = {},
+				request;
+
+			window.onerror = function (message) {
+				divOutput.value = message;
+				return false;
+			}
 
 			function run() {
 				divOutput.value = '';
@@ -73,21 +80,42 @@
 				
 				document.getElementById('operators').innerHTML = operatorTable;
 			}
-			
-			function requestOperators() {
-				var request = new XMLHttpRequest();
-				request.overrideMimeType('application/json');
-				request.open('GET', 'operators.min.json', true);
-				request.onreadystatechange = function () {
-					if (request.readyState === 4 && request.status === 200) {
-						populateOperators(request.responseText);
-					}
+
+			function permalink() {
+				var query = '';
+				query += 'code=' + encodeURIComponent(divCode.value);
+				if (divInput.value !== '') {
+					query += '&input=' + encodeURIComponent(divInput.value);
 				}
-				request.send(null);
+				if (checkboxDebug.checked) {
+					query += '&debug=1';
+				}
+				document.location = '?' + query;
 			}
-			
+
+			window.location.search.substring(1).split("&").forEach(function (pair) {
+				pair = pair.split('=');
+				if (pair[0] === 'code') {
+					divCode.value = decodeURIComponent(pair[1]);
+					countCharacters();
+				} else if (pair[0] === 'input') {
+					divInput.value = decodeURIComponent(pair[1]);
+				} else if (pair[0] === 'debug') {
+					checkboxDebug.checked = decodeURIComponent(pair[1]) === '1';
+				}
+			});
+
 			divCode.addEventListener('input', countCharacters);
-			requestOperators();
+
+			request = new XMLHttpRequest();
+			request.overrideMimeType('application/json');
+			request.open('GET', 'operators.min.json', true);
+			request.onreadystatechange = function () {
+				if (request.readyState === 4 && request.status === 200) {
+					populateOperators(request.responseText);
+				}
+			}
+			request.send(null);
 		</script>
 	</body>
 </html>

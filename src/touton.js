@@ -889,7 +889,7 @@
 			operator('!', null, 1, true, -1, function (a) { return '(!' + a + ')'; });
 			operator('#', null, 1, false, -1, function (a) { return a; });
 			operator('%', 't.mod', 2, true, -1, function (a, b) { return 't.mod(' + a + ',' + b + ')'; });
-			operator('&', 't.and', 2, true, -1, false, function (a, b) { return 't.and(' + a + ',' + b + ')'; });
+			operator('&', 't.and', 2, true, -1, function (a, b) { return 't.and(' + a + ',' + b + ')'; });
 			operator('*', 't.multiplyRepeat', 2, true, -1, function (a, b) { return 't.multiplyRepeat(' + a + ',' + b + ')'; });
 			operator('+', 't.addConcat', 2, true, -1, function (a, b) { return 't.addConcat(' + a + ',' + b + ')'; });
 			operator(',', 't.pair', 2, true, -1, function (a, b) { return 't.pair(' + a + ',' + b + ')'; });
