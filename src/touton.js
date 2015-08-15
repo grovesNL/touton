@@ -56,6 +56,10 @@
 				return a;
 			};
 
+			$e.and = function (a, b) {
+				return $e.normalize(a) && $e.normalize(b);
+			};
+
 			$e.mod = function (a, b) {
 				a = $e.normalize(a);
 				b = $e.normalize(b);
@@ -140,6 +144,10 @@
 					return result;
 				}
 				error(getTypeError('t.addConcat', [a, b]));
+			};
+
+			$e.pair = function (a, b) {
+				return [$e.normalize(a), $e.normalize(b)];
 			};
 
 			$e.subtractRemove = function (a, b) {
@@ -233,6 +241,16 @@
 				error(getTypeError('t.greaterThanUpperSlice', [a, b]));
 			};
 
+			$e.ternary = function (a, b, c) {
+				a = $e.normalize(a);
+				b = $e.normalize(b);
+				c = $e.normalize(c);
+				if (isBoolean(b)) {
+					return b ? a : c;
+				}
+				error(getTypeError('t.ternary', [a, b, c]));
+			};
+
 			$e.getLookupIndex = function (a, b) {
 				a = $e.normalize(a);
 				b = $e.normalize(b);
@@ -243,16 +261,7 @@
 				error(getTypeError('t.getLookupIndex', [a, b]));
 			};
 
-			$e.flatten = function (a) {
-				a = $e.normalize(a);
-				if (isArray(a)) {
-					// flatten
-					return [].concat.apply([], a);
-				}
-				error(getTypeError('t.flatten', [a]));
-			};
-
-			$e.changeCase = function (a) {
+			$e.changeCaseFlatten = function (a) {
 				var i,
 					result;
 				a = $e.normalize(a);
@@ -268,7 +277,11 @@
 					}
 					return result;
 				}
-				error(getTypeError('t.changeCase', [a]));
+				if (isArray(a)) {
+					// flatten
+					return [].concat.apply([], a);
+				}
+				error(getTypeError('t.changeCaseFlatten', [a]));
 			};
 
 			$e.factorial = function (a) {
@@ -607,6 +620,11 @@
 				return result;
 			};
 
+			$e.equal = function (a, b) {
+				// stringify allows for nested array comparisons by value (no support for object/function comparisons)
+				return JSON.stringify($e.normalize(a)) === JSON.stringify($e.normalize(b));
+			};
+
 			$e.range = function (a) {
 				var i,
 					result = [];
@@ -683,6 +701,10 @@
 				error(getTypeError('t.elementWiseAdd', [a, b]));
 			};
 
+			$e.or = function (a, b) {
+				return $e.normalize(a) || $e.normalize(b);
+			};
+
 			$e.compare = function (a, b) {
 				a = $e.normalize(a);
 				b = $e.normalize(b);
@@ -748,7 +770,7 @@
 			}
 
 			function addToken(type, value, printable) {
-				tokens.push({type: type, value: value, printable: printable});
+				tokens.push({type: type, value: value, printable: printable, splat: value === '#'});
 			}
 
 			function isOperator(value) {
@@ -860,106 +882,93 @@
 			}());
 
 			// operators
-			function operator(symbol, arity, printable, lastPrintable, expression) {
-				$o[symbol] = {arity: arity, printable: printable, lastPrintable : lastPrintable, expression: expression};
+			function operator(symbol, functionName, arity, printable, lastPrintable, expression) {
+				$o[symbol] = {functionName: functionName, arity: arity, printable: printable, lastPrintable: lastPrintable, expression: expression};
 			}
 
-			operator(';', 0, false, -1, function () { return ';'; });
-			operator('!', 1, true, -1, function (a) { return '(!' + a + ')'; });
-			operator('\\', 1, true, -1, function (a) { return '"' + a + '"'; });
-			operator('&', 2, true, -1, false, function (a, b) { return '(' + a + '&&' + b + ')'; });
-			operator('%', 2, true, -1, function (a, b) { return 't.mod(' + a + ',' + b + ')'; });
-			operator('*', 2, true, -1, function (a, b) { return 't.multiplyRepeat(' + a + ',' + b + ')'; });
-			operator('+', 2, true, -1, function (a, b) { return 't.addConcat(' + a + ',' + b + ')'; });
-			operator(',', 2, true, -1, function (a, b) { return '[' + a + ',' + b + ']'; });
-			operator('-', 2, true, -1, function (a, b) { return 't.subtractRemove(' + a + ',' + b + ')'; });
-			operator('/', 2, true, -1, function (a, b) { return 't.divideSplit(' + a + ',' + b + ')'; });
-			operator('^', 2, true, -1, function (a, b) { return 't.pow(' + a + ',' + b + ')'; });
-			operator('<', 2, true, -1, function (a, b) { return 't.lessThanLowerSlice(' + a + ',' + b + ')'; });
-			operator('=', 2, false, -1, function (a, b) { return a + '=' + b + ';'; });
-			operator('>', 2, true, -1, function (a, b) { return 't.greaterThanUpperSlice(' + a + ',' + b + ')'; });
-			operator('?', 3, true, -1, function (a, b, c) { return '(' + b + '?' + a + ':' + c + ')'; });
-			operator('@', 2, true, -1, function (a, b) { return 't.getLookupIndex(' + a + ',' + b + ')'; });
-			operator('A&', 1, true, -1, function (a) { return '(' + a + '[0]&&' + a + '[1])'; });
-			operator('A%', 1, true, -1, function (a) { return 't.mod(' + a + '[0],' + a + '[1])'; });
-			operator('A*', 1, true, -1, function (a) { return 't.multiplyRepeat(' + a + '[0],' + a + '[1])'; });
-			operator('A+', 1, true, -1, function (a) { return 't.addConcat(' + a + '[0],' + a + '[1])'; });
-			operator('A-', 1, true, -1, function (a) { return 't.subtractRemove(' + a + '[0],' + a + '[1])'; });
-			operator('A/', 1, true, -1, function (a) { return 't.divideSplit(' + a + '[0],' + a + '[1])'; });
-			operator('A^', 1, true, -1, function (a) { return 't.pow(' + a + '[0],' + a + '[1])'; });
-			operator('A<', 1, true, -1, function (a) { return 't.lessThanLowerSlice(' + a + '[0],' + a + '[1])'; });
-			operator('A=', 3, false, -1, function (a, b, c) { return a + '=' + b + '[0];' + c + '=' + b + '[1];'; });
-			operator('A>', 1, true, -1, function (a) { return 't.greaterThanUpperSlice(' + a + '[0],' + a + '[1])'; });
-			operator('A?', 2, true, -1, function (a, b) { return '(' + a + '?' + b + '[0]:' + b + '[1])'; });
-			operator('AP', 1, true, -1, function (a) { return 't.pickRandom(' + a + ')'; });
-			operator('Af', 1, true, -1, function (a) { return 't.flatten(' + a + ')'; });
-			operator('Ai', 2, true, -1, function (a) { return '(' + a + '[0]===' + a + '[1])'; });
-			operator('A|', 2, true, -1, function (a) { return '(' + a + '[0]||' + a + '[1])'; });
-			operator('A~', 1, true, -1, function (a) { return 't.compare(' + a + '[0],' + a + '[1])'; });
-			operator('C', 1, true, -1, function (a) { return 't.changeCase(' + a + ')'; });
-			operator('E', 3, false, 3, function (a, b, c) {
+			operator('!', null, 1, true, -1, function (a) { return '(!' + a + ')'; });
+			operator('#', null, 1, false, -1, function (a) { return a; });
+			operator('%', 't.mod', 2, true, -1, function (a, b) { return 't.mod(' + a + ',' + b + ')'; });
+			operator('&', 't.and', 2, true, -1, false, function (a, b) { return 't.and(' + a + ',' + b + ')'; });
+			operator('*', 't.multiplyRepeat', 2, true, -1, function (a, b) { return 't.multiplyRepeat(' + a + ',' + b + ')'; });
+			operator('+', 't.addConcat', 2, true, -1, function (a, b) { return 't.addConcat(' + a + ',' + b + ')'; });
+			operator(',', 't.pair', 2, true, -1, function (a, b) { return 't.pair(' + a + ',' + b + ')'; });
+			operator('-', 't.subtractRemove', 2, true, -1, function (a, b) { return 't.subtractRemove(' + a + ',' + b + ')'; });
+			operator('/', 't.divideSplit', 2, true, -1, function (a, b) { return 't.divideSplit(' + a + ',' + b + ')'; });
+			operator(';', null, 0, false, -1, function () { return ';'; });
+			operator('<', 't.lessThanLowerSlice', 2, true, -1, function (a, b) { return 't.lessThanLowerSlice(' + a + ',' + b + ')'; });
+			operator('=', null, 2, false, -1, function (a, b) { return a + '=' + b + ';'; });
+			operator('>', 't.greaterThanUpperSlice', 2, true, -1, function (a, b) { return 't.greaterThanUpperSlice(' + a + ',' + b + ')'; });
+			operator('?', 't.ternary', 3, true, -1, function (a, b, c) { return 't.ternary(' + a + ',' + b + ',' + c + ')'; });
+			operator('@', 't.getLookupIndex', 2, true, -1, function (a, b) { return 't.getLookupIndex(' + a + ',' + b + ')'; });			
+			operator('C', 't.changeCaseFlatten', 1, true, -1, function (a) { return 't.changeCaseFlatten(' + a + ')'; });
+			operator('E', null, 3, false, 3, function (a, b, c) {
 				var i = getVariable(),
 					enumerable = getVariable();
 				return enumerable + '=t.range(' + a + ');for(' + i + '=0;' + i + '<' + enumerable + '.length;' + i + '++){' + b + '=' + enumerable + '[' + i + '];' + c + '}';
 			});
-			operator('F', 0, false, -1, function () { return 'false'; });
-			operator('Gb', 0, false, -1, function () { return 'break;'; });
-			operator('Gc', 0, false, -1, function () { return 'continue;'; });
-			operator('I', 2, true, -1, function (a, b) { return 't.indexOf(' + a + ',' + b + ')'; });
-			operator('M!', 1, true, -1, function (a) { return 't.factorial(' + a + ')'; });
-			operator('M_', 1, true, -1, function (a) { return 't.sign(' + a + ')'; });
-			operator('MC', 1, true, -1, function (a) { return 't.acos(' + a + ')'; });
-			operator('MM', 1, true, -1, function (a) { return 't.max(' + a + ')'; });
-			operator('MR', 2, true, -1, function (a, b) { return 't.radix(' + a + ',' + b + ')'; });
-			operator('MS', 1, true, -1, function (a) { return 't.asin(' + a + ')'; });
-			operator('MT', 2, true, -1, function (a, b) { return 't.atan2(' + a + ',' + b + ')'; });
-			operator('M]', 1, true, -1, function (a) { return 't.ceil(' + a + ')'; });
-			operator('M[', 1, true, -1, function (a) { return 't.floor(' + a + ')'; });
-			operator('Ma', 1, true, -1, function (a) { return 't.abs(' + a + ')'; });
-			operator('Mb', 3, true, -1, function (a, b, c) { return 't.clamp(' + a + ',' + b + ',' + c + ')'; });
-			operator('Mc', 1, true, -1, function (a) { return 't.cos(' + a + ')'; });
-			operator('Mm', 1, true, -1, function (a) { return 't.min(' + a + ')'; });
-			operator('Mo', 1, true, -1, function (a) { return 't.round(' + a + ')'; });
-			operator('Mq', 1, true, -1, function (a) { return 't.sqrt(' + a + ')'; });
-			operator('Mr', 0, true, -1, function () { return 't.random()'; });
-			operator('Ms', 1, true, -1, function (a) { return 't.sin(' + a + ')'; });
-			operator('Mt', 1, true, -1, function (a) { return 't.tan(' + a + ')'; });
-			operator('P', 1, true, -1, function (a) { return 't.popRegex(' + a + ')'; });
-			operator('R', 3, true, -1, function (a, b, c) { return 't.replace(' + a + ',' + b + ',' + c + ')'; });
-			operator('T', 0, false, -1, function () { return 'true'; });
-			operator('V', 1, true, -1, function (a) { return 't.evaluate(' + a + ')'; });
-			operator('_', 1, true, -1, function (a) { return 't.negate(' + a + ')'; });
-			operator('`', 3, true, -1, function (a, b, c) { return 't.setLookupIndex(' + a + ',' + b + ',' + c + ')'; });
-			operator('c', 1, true, -1, function (a) { return 't.charCode(' + a + ')'; });
-			operator('d', 3, false, -1, function (a, b, c) {
+			operator('F', null, 0, false, -1, function () { return 'false'; });
+			operator('Gb', null, 0, false, -1, function () { return 'break;'; });
+			operator('Gc', null, 0, false, -1, function () { return 'continue;'; });
+			operator('Gp', null, 1, true, -1, function (a) { return 't.pickRandom(' + a + ')'; });
+			operator('I', 't.indexOf', 2, true, -1, function (a, b) { return 't.indexOf(' + a + ',' + b + ')'; });
+			operator('M!', 't.factorial', 1, true, -1, function (a) { return 't.factorial(' + a + ')'; });
+			operator('M_', 't.sign', 1, true, -1, function (a) { return 't.sign(' + a + ')'; });
+			operator('MC', 't.acos', 1, true, -1, function (a) { return 't.acos(' + a + ')'; });
+			operator('MM', 't.max', 1, true, -1, function (a) { return 't.max(' + a + ')'; });
+			operator('MR', 't.radix', 2, true, -1, function (a, b) { return 't.radix(' + a + ',' + b + ')'; });
+			operator('MS', 't.asin', 1, true, -1, function (a) { return 't.asin(' + a + ')'; });
+			operator('MT', 't.atan2', 2, true, -1, function (a, b) { return 't.atan2(' + a + ',' + b + ')'; });
+			operator('M]', 't.ceil', 1, true, -1, function (a) { return 't.ceil(' + a + ')'; });
+			operator('M[', 't.floor', 1, true, -1, function (a) { return 't.floor(' + a + ')'; });
+			operator('Ma', 't.abs', 1, true, -1, function (a) { return 't.abs(' + a + ')'; });
+			operator('Mb', 't.clamp', 3, true, -1, function (a, b, c) { return 't.clamp(' + a + ',' + b + ',' + c + ')'; });
+			operator('Mc', 't.cos', 1, true, -1, function (a) { return 't.cos(' + a + ')'; });
+			operator('Mm', 't.min', 1, true, -1, function (a) { return 't.min(' + a + ')'; });
+			operator('Mo', 't.round', 1, true, -1, function (a) { return 't.round(' + a + ')'; });
+			operator('Mq', 't.sqrt', 1, true, -1, function (a) { return 't.sqrt(' + a + ')'; });
+			operator('Mr', 't.random', 0, true, -1, function () { return 't.random()'; });
+			operator('Ms', 't.sin', 1, true, -1, function (a) { return 't.sin(' + a + ')'; });
+			operator('Mt', 't.tan', 1, true, -1, function (a) { return 't.tan(' + a + ')'; });
+			operator('P', 't.popRegex', 1, true, -1, function (a) { return 't.popRegex(' + a + ')'; });
+			operator('R', 't.replace', 3, true, -1, function (a, b, c) { return 't.replace(' + a + ',' + b + ',' + c + ')'; });
+			operator('T', null, 0, false, -1, function () { return 'true'; });
+			operator('V', 't.evaluate', 1, true, -1, function (a) { return 't.evaluate(' + a + ')'; });
+			operator('\\', null, 1, true, -1, function (a) { return '\'' + a + '\''; });
+			operator('^', 't.pow', 2, true, -1, function (a, b) { return 't.pow(' + a + ',' + b + ')'; });
+			operator('_', 't.negate', 1, true, -1, function (a) { return 't.negate(' + a + ')'; });
+			operator('`', 't.setLookupIndex', 3, true, -1, function (a, b, c) { return 't.setLookupIndex(' + a + ',' + b + ',' + c + ')'; });
+			operator('c', 't.charCode', 1, true, -1, function (a) { return 't.charCode(' + a + ')'; });
+			operator('d', null, 3, false, -1, function (a, b, c) {
 				var i = getVariable(),
 					max = getVariable();
 				return max + '=' + a + ';for(' + i + '=0;' + i + '<' + max + ';' + i + '++){' + b + '=' + c + ';}';
 			});
-			operator('e', 1, true, -1, function (a) { return 't.expEnd(' + a + ')'; });
-			operator('f', 4, false, 4, function (a, b, c, d) {
+			operator('e', 't.expEnd', 1, true, -1, function (a) { return 't.expEnd(' + a + ')'; });
+			operator('f', null, 4, false, 4, function (a, b, c, d) {
 				var max = getVariable();
 				return max + '=' + c + ';for(' + b + '=' + a + ';' + b + '<' + max + ';' + b + '++){' + d + '}';
 			});
-			operator('h', 1, true, -1, function (a) { return 't.head(' + a + ')'; });
-			operator('j', 2, true, -1, function (a, b) { return 't.join(' + a + ',' + b + ')'; });
-			operator('l', 1, true, -1, function (a) { return 't.lnLength(' + a + ')'; });
-			operator('m', 3, true, -1, function (a, b, c) {
+			operator('h', 't.head', 1, true, -1, function (a) { return 't.head(' + a + ')'; });
+			operator('j', 't.join', 2, true, -1, function (a, b) { return 't.join(' + a + ',' + b + ')'; });
+			operator('k', null, 3, false, -1, function (a, b, c) { return a + '=' + b + '[0];' + c + '=' + b + '[1];'; });
+			operator('l', 't.lnLength', 1, true, -1, function (a) { return 't.lnLength(' + a + ')'; });
+			operator('m', null, 3, true, -1, function (a, b, c) {
 				return 't.range(' + a + ').map(function(' + b + '){return ' + c + ';})';
 			});
-			operator('p', 1, false, -1, function (a) { return 't.print(' + a + ');'; });
-			operator('q', 2, true, -1, function (a, b) { return '(' + a + '===' + b + ')'; });
-			operator('r', 1, true, -1, function (a) { return 't.range(' + a + ')'; });
-			operator('s', 1, true, -1, function (a) { return 't.sum(' + a + ')'; });
-			operator('t', 1, true, -1, function (a) { return 't.tail(' + a + ')'; });
-			operator('u', 3, false, 3, function (a, b, c) {
+			operator('p', 't.print', 1, false, -1, function (a) { return 't.print(' + a + ');'; });
+			operator('q', 't.equal', 2, true, -1, function (a, b) { return 't.equal(' + a + ',' + b + ')'; });
+			operator('r', 't.range', 1, true, -1, function (a) { return 't.range(' + a + ')'; });
+			operator('s', 't.sum', 1, true, -1, function (a) { return 't.sum(' + a + ')'; });
+			operator('t', 't.tail', 1, true, -1, function (a) { return 't.tail(' + a + ')'; });
+			operator('u', null, 3, false, 3, function (a, b, c) {
 				var max = getVariable();
 				return max + '=' + b + ';for(' + a + '=0;' + a + '<' + max + ';' + a + '++){' + c + '}';
 			});
-			operator('v', 2, true, -1, function (a, b) { return 't.elementWiseAdd(' + a + ',' + b + ')'; });
-			operator('w', 1, true, -1, function (a) { return '[' + a + ']'; });
-			operator('|', 2, true, -1, false, function (a, b) { return '(' + a + '||' + b + ')'; });
-			operator('~', 3, true, -1, function (a, b, c) { return 't.compare(' + a + ',' + b + ',' + c + ')'; });
+			operator('v', 't.elementWiseAdd', 2, true, -1, function (a, b) { return 't.elementWiseAdd(' + a + ',' + b + ')'; });
+			operator('w', null, 1, true, -1, function (a) { return '[' + a + ']'; });
+			operator('|', 't.or', 2, true, -1, false, function (a, b) { return 't.or(' + a + ',' + b + ')'; });
+			operator('~', 't.compare', 3, true, -1, function (a, b, c) { return 't.compare(' + a + ',' + b + ',' + c + ')'; });
 			return $o;
 		}
 
@@ -970,7 +979,7 @@
 				i,
 				output = '',
 				variable,
-				arg;
+				lastArg;
 
 			while (tokens.length >  0) {
 				token = tokens.pop();
@@ -978,17 +987,29 @@
 					args = [];
 					for (i = 0; i < operators[token.value].arity; i++) {
 						if (stack.length === 0) {
-							error('Operator \'' + token.value + '\' has arity of ' + operators[token.value].arity + ' (not ' + args.length + ')');
+							error('Operator \'' + token.value + '\' (position ' + tokens.length +  ') has arity of ' + operators[token.value].arity + ' (not ' + args.length + ')');
 						}
-						arg = stack.pop();
+						lastArg = stack.pop();
+						if (lastArg.splat) {
+							args.push(lastArg.value);
+							break;
+						}
 						if (!operators[token.value].printable && operators[token.value].lastPrintable === args.length + 1) {
-							if (arg.printable) {
-								arg.value = 't.print(' + arg.value + ');';
+							if (lastArg.printable) {
+								lastArg.value = 't.print(' + lastArg.value + ');';
 							}
 						}
-						args.push(arg.value);
+						args.push(lastArg.value);
 					}
-					stack.push({type: 'expression', value: operators[token.value].expression.apply(null, args), printable: operators[token.value].printable && token.printable});
+					if (args.length === 1 && lastArg.splat) {
+						if (operators[token.value].functionName === null) {
+							error('Operator \'' + token.value + '\' (position ' + tokens.length +  ') cannot be used with splat operator');
+						} else {
+							stack.push({type: 'expression', value: operators[token.value].functionName + '.apply(this,' + args[0] + ')', printable: operators[token.value].printable && token.printable, splat: token.splat});
+						}
+					} else {
+						stack.push({type: 'expression', value: operators[token.value].expression.apply(null, args), printable: operators[token.value].printable && token.printable, splat: token.splat});
+					}
 				} else { // operand
 					stack.push(token);
 				}

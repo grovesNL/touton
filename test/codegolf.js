@@ -15,7 +15,7 @@ describe('Code Golf Answers', function () {
 	});
 	it('54076/is-7-l8r-than-9-is-seven-later-than-nine', function () {
 		output = '';
-		touton({expression: 'A~_/i\\-', input: ['Xv-Y0'], print: logger});
+		touton({expression: '~#_/i\\-', input: ['Xv-Y0'], print: logger});
 		assert.equal(output, 1);
 	});
 });

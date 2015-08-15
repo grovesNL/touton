@@ -15,6 +15,36 @@
 			]
 	},
 	{
+		"symbol": "\"",
+		"arity": 1,
+		"variants":
+			[
+				{
+					"name": "Open or close string",
+					"arguments": 
+						[
+							{"name": "text", "type": ["string"]}
+						],
+					"description": "Creates a string containing the text between two of these operators. If no close string operator is present, one is placed at the end of the code."
+				}
+			]
+	},
+	{
+		"symbol": "#",
+		"arity": 1,
+		"variants":
+			[
+				{
+					"name": "Splat",
+					"arguments": 
+						[
+							{"name": "arr", "type": ["array"]}
+						],
+					"description": "Passes the elements of arr as arguments to the parent operator."
+				}
+			]
+	},
+	{
 		"symbol" : "%",
 		"arity": 2,
 		"variants":
@@ -27,20 +57,6 @@
 							{"name": "divisor", "type": ["number"]}
 						],
 					"description": "Divides the dividend by the divisor and returns the remainder."
-				}
-			]
-	},
-	{
-		"symbol": ";",
-		"arity": 0,
-		"variants":
-			[
-				{
-					"name": "Semi-colon",
-					"arguments": 
-						[
-						],
-					"description": "Places a semi-colon at the location specified."
 				}
 			]
 	},
@@ -204,6 +220,20 @@
 			]
 	},
 	{
+		"symbol": ";",
+		"arity": 0,
+		"variants":
+			[
+				{
+					"name": "Semi-colon",
+					"arguments": 
+						[
+						],
+					"description": "Places a semi-colon at the location specified."
+				}
+			]
+	},
+	{
 		"symbol": "<",
 		"arity": 2,
 		"variants":
@@ -278,9 +308,9 @@
 					"name": "Ternary",
 					"arguments":
 						[
-							{"name": "valueWhenTrue", "type": ["number", "string", "array", "boolean"]},
+							{"name": "valueWhenTrue", "type": ["boolean", "string", "number", "array"]},
 							{"name": "condition", "type": ["boolean", "string", "number", "array"]},
-							{"name": "valueWhenFalse", "type": ["number", "string", "array", "boolean"]}
+							{"name": "valueWhenFalse", "type": ["boolean", "string", "number", "array"]}
 						],
 					"description": "Returns valueWhenTrue if condition is truthy in JavaScript, otherwise returns valueWhenFalse."
 				}
@@ -303,249 +333,6 @@
 			]
 	},
 	{
-		"symbol": "A&",
-		"arity": 1,
-		"variants":
-			[
-				{
-					"name": "Pair &",
-					"arguments":
-						[
-							{"name": "pair", "type": ["array"]}
-						],
-					"description": "Evaluates & operator on pair[0] and pair[1]."
-				}
-			]
-	},
-	{
-		"symbol": "A%",
-		"arity": 1,
-		"variants":
-			[
-				{
-					"name": "Pair %",
-					"arguments":
-						[
-							{"name": "pair", "type": ["array"]}
-						],
-					"description": "Evaluates % operator on pair[0] and pair[1]."
-				}
-			]
-	},
-	{
-		"symbol": "A*",
-		"arity": 1,
-		"variants":
-			[
-				{
-					"name": "Pair *",
-					"arguments":
-						[
-							{"name": "pair", "type": ["array"]}
-						],
-					"description": "Evaluates * operator on pair[0] and pair[1]."
-				}
-			]
-	},
-	{
-		"symbol": "A+",
-		"arity": 1,
-		"variants":
-			[
-				{
-					"name": "Pair +",
-					"arguments":
-						[
-							{"name": "pair", "type": ["array"]}
-						],
-					"description": "Evaluates + operator on pair[0] and pair[1]."
-				}
-			]
-	},
-	{
-		"symbol": "A-",
-		"arity": 1,
-		"variants":
-			[
-				{
-					"name": "Pair -",
-					"arguments":
-						[
-							{"name": "pair", "type": ["array"]}
-						],
-					"description": "Evaluates - operator on pair[0] and pair[1]."
-				}
-			]
-	},
-	{
-		"symbol": "A/",
-		"arity": 1,
-		"variants":
-			[
-				{
-					"name": "Pair /",
-					"arguments":
-						[
-							{"name": "pair", "type": ["array"]}
-						],
-					"description": "Evaluates / operator on pair[0] and pair[1]."
-				}
-			]
-	},
-	{
-		"symbol": "A^",
-		"arity": 1,
-		"variants":
-			[
-				{
-					"name": "Pair ^",
-					"arguments":
-						[
-							{"name": "pair", "type": ["array"]}
-						],
-					"description": "Evaluates ^ operator on pair[0] and pair[1]."
-				}
-			]
-	},
-	{
-		"symbol": "A<",
-		"arity": 1,
-		"variants":
-			[
-				{
-					"name": "Pair <",
-					"arguments":
-						[
-							{"name": "pair", "type": ["array"]}
-						],
-					"description": "Evaluates < operator on pair[0] and pair[1]."
-				}
-			]
-	},
-	{
-		"symbol": "A=",
-		"arity": 3,
-		"variants":
-			[
-				{
-					"name": "Pair assign",
-					"arguments":
-						[
-							{"name": "variableOne", "type": ["variable"]},
-							{"name": "pair", "type": ["array"]},
-							{"name": "variableTwo", "type": ["variable"]}
-						],
-					"description": "Assigns pair[0] to variableOne and pair[1] to variableTwo.."
-				}
-			]
-	},
-	{
-		"symbol": "A>",
-		"arity": 1,
-		"variants":
-			[
-				{
-					"name": "Pair >",
-					"arguments":
-						[
-							{"name": "pair", "type": ["array"]}
-						],
-					"description": "Evaluates > operator on pair[0] and pair[1]."
-				}
-			]
-	},
-	{
-		"symbol": "A?",
-		"arity": 2,
-		"variants":
-			[
-				{
-					"name": "Pair ternary",
-					"arguments":
-						[
-							{"name": "condition", "type": ["boolean"]},
-							{"name": "pair", "type": ["array"]}
-						],
-					"description": "Returns pair[0] if condition is truthy, otherwise pair[1]."
-				}
-			]
-	},
-	{
-		"symbol": "AP",
-		"arity": 1,
-		"variants":
-			[
-				{
-					"name": "Pick random",
-					"arguments":
-						[
-							{"name": "arr", "type": ["array"]}
-						],
-					"description": "Returns a random element from arr."
-				}
-			]
-	},
-	{
-		"symbol": "Af",
-		"arity": 1,
-		"variants":
-			[
-				{
-					"name": "Flatten",
-					"arguments":
-						[
-							{"name": "arr", "type": ["array"]}
-						],
-					"description": "Returns flattened arr."
-				}
-			]
-	},
-	{
-		"symbol": "Aq",
-		"arity": 1,
-		"variants":
-			[
-				{
-					"name": "Pair m",
-					"arguments":
-						[
-							{"name": "pair", "type": ["array"]}
-						],
-					"description": "Evaluates m operator on pair[0] and pair[1]."
-				}
-			]
-	},
-	{
-		"symbol": "A|",
-		"arity": 1,
-		"variants":
-			[
-				{
-					"name": "Pair |",
-					"arguments":
-						[
-							{"name": "pair", "type": ["array"]}
-						],
-					"description": "Evaluates | operator on pair[0] and pair[1]."
-				}
-			]
-	},
-	{
-		"symbol": "A~",
-		"arity": 1,
-		"variants":
-			[
-				{
-					"name": "Pair ~",
-					"arguments":
-						[
-							{"name": "pair", "type": ["array"]}
-						],
-					"description": "Evaluates ~ operator on pair[0] and pair[1]."
-				}
-			]
-	},
-	{
 		"symbol": "C",
 		"arity": 1,
 		"variants":
@@ -557,6 +344,14 @@
 							{"name": "str", "type": ["string"]}
 						],
 					"description": "Changes the case of each character in str."
+				},
+				{
+					"name": "Flatten",
+					"arguments":
+						[
+							{"name": "arr", "type": ["array"]}
+						],
+					"description": "Returns arr flattened."
 				}
 			]
 	},
@@ -616,6 +411,21 @@
 						[
 						],
 					"description": "Includes a continue in the current execution path."
+				}
+			]
+	},
+	{
+		"symbol": "Gp",
+		"arity": 1,
+		"variants":
+			[
+				{
+					"name": "Pick random",
+					"arguments":
+						[
+							{"name": "arr", "type": ["array"]}
+						],
+					"description": "Returns a random element from arr."
 				}
 			]
 	},
@@ -1157,6 +967,23 @@
 							{"name": "value", "type": ["string", "number"]}
 						],
 					"description": "Returns a string of arr joined by value."
+				}
+			]
+	},
+	{
+		"symbol": "k",
+		"arity": 3,
+		"variants":
+			[
+				{
+					"name": "Pair assign",
+					"arguments":
+						[
+							{"name": "variableOne", "type": ["variable"]},
+							{"name": "pair", "type": ["array"]},
+							{"name": "variableTwo", "type": ["variable"]}
+						],
+					"description": "Assigns pair[0] to variableOne and pair[1] to variableTwo.."
 				}
 			]
 	},
