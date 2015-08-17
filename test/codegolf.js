@@ -5,7 +5,7 @@ var touton = require('../src/touton.js'),
 describe('Code Golf Answers', function () {
 	it('53799/calculating-waves', function () {
 		output = '';
-		touton({expression: 'dPii/v+hiit+iei2i', input: [[2, 1, 2, 3, 4, 5], 1], print: logger});
+		touton({expression: 'kXiYdYX/v+hXXt+XeX2X', input: [[2, 1, 2, 3, 4, 5], 1], print: logger});
 		assert.equal(output, '[1.5,2,2,3,4,4.5]\n');
 	});
 	it('53812/make-the-mexican-wave', function () {

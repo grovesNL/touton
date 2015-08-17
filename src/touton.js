@@ -47,6 +47,10 @@
 				return [].concat.apply([], a);
 			}
 
+			function deepCopy(a) {
+				return JSON.parse(JSON.stringify(a));
+			}
+
 			function cartesianProduct(a, b) {
 				var result = [],
 					i,
@@ -82,27 +86,11 @@
 				error('Cannot determine Cartesian product for \'' + a + '\' and \'' + b + '\'');
 			}
 
-			$e.normalize = function (a) {
-				if (isArray(a)) {
-					if (a.length === 1) {
-						// unwrap single element arrays
-						if (isArray(a[0])) {
-							return a[0].slice(0);
-						}
-						return a[0];
-					}
-					return a.slice(0);
-				}
-				return a;
-			};
-
 			$e.and = function (a, b) {
-				return $e.normalize(a) && $e.normalize(b);
+				return a && b;
 			};
 
 			$e.mod = function (a, b) {
-				a = $e.normalize(a);
-				b = $e.normalize(b);
 				if (isNumber(a) && isNumber(b)) {
 					// modulus
 					return a % b;
@@ -113,8 +101,6 @@
 			$e.multiplyRepeat = function (a, b) {
 				var i,
 					result = [];
-				a = $e.normalize(a);
-				b = $e.normalize(b);
 				if (isNumber(a) && isNumber(b)) {
 					// multiply
 					return a * b;
@@ -145,9 +131,6 @@
 			};
 
 			$e.addConcat = function (a, b) {
-				var result;
-				a = $e.normalize(a);
-				b = $e.normalize(b);
 				if ((isNumber(a) || isString(a)) && (isNumber(b) || isString(b))) {
 					// add
 					return a + b;
@@ -158,37 +141,35 @@
 				}
 				if (isArray(a) && (isNumber(b) || isString(b))) {
 					// push
-					result = a;
-					result.push(b);
-					return result;
+					a = deepCopy(a);
+					a.push(b);
+					return a;
 				}
 				if ((isNumber(a) || isString(a)) && isArray(b)) {
 					// unshift
-					result = b;
+					b = deepCopy(b);
 					b.unshift(a);
-					return result;
+					return b;
 				}
 				error(getTypeError('t.addConcat', [a, b]));
 			};
 
 			$e.pair = function (a, b) {
-				return [$e.normalize(a), $e.normalize(b)];
+				return [a, b];
 			};
 
 			$e.subtractRemove = function (a, b) {
 				var result,
 					index;
-				a = $e.normalize(a);
-				b = $e.normalize(b);
 				if (isNumber(a) && isNumber(b)) {
 					// subtract
 					return a - b;
 				}
 				if (isArray(a) && (isNumber(b) || isString(b))) {
 					// remove
-					index = a.indexOf(b);
+					result = deepCopy(a);
+					index = result.indexOf(b);
 					if (index > -1) {
-						result = a;
 						result.splice(index, 1);
 					}
 					return result;
@@ -199,8 +180,6 @@
 			$e.divideSplit = function (a, b) {
 				var i,
 					result = [];
-				a = $e.normalize(a);
-				b = $e.normalize(b);
 				if (isNumber(a) && isNumber(b)) {
 					// divide
 					return a / b;
@@ -236,8 +215,6 @@
 			$e.pow = function (a, b) {
 				var i,
 					result;
-				a = $e.normalize(a);
-				b = $e.normalize(b);
 				if (isNumber(a) && isNumber(b)) {
 					// power
 					return Math.pow(a, b);
@@ -257,8 +234,6 @@
 			};
 
 			$e.lessThanLowerSlice = function (a, b) {
-				a = $e.normalize(a);
-				b = $e.normalize(b);
 				if ((isNumber(a) || isString(a)) && (isNumber(b) && isString(b))) {
 					// less than
 					return a < b;
@@ -271,8 +246,6 @@
 			};
 
 			$e.greaterThanUpperSlice = function (a, b) {
-				a = $e.normalize(a);
-				b = $e.normalize(b);
 				if ((isNumber(a) || isString(a)) && (isNumber(b) && isString(b))) {
 					// greater than
 					return a < b;
@@ -287,9 +260,6 @@
 			};
 
 			$e.ternary = function (a, b, c) {
-				a = $e.normalize(a);
-				b = $e.normalize(b);
-				c = $e.normalize(c);
 				if (isBoolean(b)) {
 					return b ? a : c;
 				}
@@ -297,8 +267,6 @@
 			};
 
 			$e.getLookupIndex = function (a, b) {
-				a = $e.normalize(a);
-				b = $e.normalize(b);
 				if (isNumber(a) && (isArray(b) || isString(b))) {
 					// read value at index
 					return b[a];
@@ -308,9 +276,10 @@
 
 			$e.leftShiftRotate = function (a, b) {
 				var i;
-				a = $e.normalize(a);
-				b = $e.normalize(b);
 				if (isNumber(a) && (isString(b) || isArray(b))) {
+					if (isArray(b)) {
+						b = deepCopy(b);
+					}
 					// circular left shift
 					for (i = 0; i < a; i++) {
 						b.unshift(b.pop());
@@ -322,13 +291,14 @@
 					return b << a;
 				}
 				error(getTypeError('t.leftShiftRotate', [a, b]));
-			}
+			};
 
 			$e.rightShiftRotate = function (a, b) {
 				var i;
-				a = $e.normalize(a);
-				b = $e.normalize(b);
 				if (isNumber(a) && (isString(b) || isArray(b))) {
+					if (isArray(b)) {
+						b = deepCopy(b);
+					}
 					// circular right shift
 					for (i = 0; i < a; i++) {
 						b.push(b.shift());
@@ -340,12 +310,11 @@
 					return b >> a;
 				}
 				error(getTypeError('t.rightShiftRotate', [a, b]));
-			}
+			};
 
 			$e.changeCaseFlatten = function (a) {
 				var i,
 					result;
-				a = $e.normalize(a);
 				if (isString(a)) {
 					// change case
 					result = '';
@@ -368,7 +337,6 @@
 			$e.factorial = function (a) {
 				var value = 1,
 					i;
-				a = $e.normalize(a);
 				if (isNumber(a)) {
 					// factorial
 					for (i = 2; i <= a; i++) {
@@ -380,7 +348,6 @@
 			};
 
 			$e.sign = function (a) {
-				a = $e.normalize(a);
 				if (isNumber(a)) {
 					// sign
 					return Math.sign(a);
@@ -389,7 +356,6 @@
 			};
 
 			$e.pickRandom = function (a) {
-				a = $e.normalize(a);
 				if (isArray(a)) {
 					// pick random
 					return a[Math.floor(Math.random() * a.length)];
@@ -398,8 +364,6 @@
 			};
 
 			$e.acos = function (a) {
-				a = $e.normalize(a);
-
 				if (isNumber(a)) {
 					// inverse cosine
 					return Math.acos(a);
@@ -408,11 +372,9 @@
 			};
 
 			$e.max = function (a) {
-				a = $e.normalize(a);
-
 				if (isArray(a)) {
 					// maximum
-					return Math.max.apply(null, $e.normalize(a));
+					return Math.max.apply(null, a);
 				}
 				error(getTypeError('t.max', [a]));
 			};
@@ -420,8 +382,6 @@
 			$e.radix = function (a, b) {
 				var result,
 					i;
-				a = $e.normalize(a);
-				b = $e.normalize(b);
 				if (isNumber(a) && isNumber(b)) {
 					// base 10 to base a
 					return b.toString(a);
@@ -446,7 +406,6 @@
 			};
 
 			$e.asin = function (a) {
-				a = $e.normalize(a);
 				if (isNumber(a)) {
 					// inverse sine
 					return Math.asin(a);
@@ -455,8 +414,6 @@
 			};
 
 			$e.atan2 = function (a, b) {
-				a = $e.normalize(a);
-				b = $e.normalize(b);
 				if (isNumber(a) && isNumber(b)) {
 					// inverse tangent
 					return Math.atan2(a, b);
@@ -465,7 +422,6 @@
 			};
 
 			$e.ceil = function (a) {
-				a = $e.normalize(a);
 				if (isNumber(a)) {
 					// ceil
 					return Math.ceil(a);
@@ -474,7 +430,6 @@
 			};
 
 			$e.floor = function (a) {
-				a = $e.normalize(a);
 				if (isNumber(a)) {
 					// floor
 					return Math.floor(a);
@@ -483,7 +438,6 @@
 			};
 
 			$e.abs = function (a) {
-				a = $e.normalize(a);
 				if (isNumber(a)) {
 					// absolute value
 					return Math.abs(a);
@@ -492,9 +446,6 @@
 			};
 
 			$e.clamp = function (a, b, c) {
-				a = $e.normalize(a);
-				b = $e.normalize(b);
-				c = $e.normalize(c);
 				if (isNumber(a) && isNumber(b) && isNumber(c)) {
 					// clamp
 					if (b < a) {
@@ -508,7 +459,6 @@
 			};
 
 			$e.cos = function (a) {
-				a = $e.normalize(a);
 				if (isNumber(a)) {
 					// cosine
 					return Math.cos(a);
@@ -517,7 +467,6 @@
 			};
 
 			$e.min = function (a) {
-				a = $e.normalize(a);
 				if (isArray(a)) {
 					// minimum
 					return Math.min.apply(null, a);
@@ -526,7 +475,6 @@
 			};
 
 			$e.round = function (a) {
-				a = $e.normalize(a);
 				if (isNumber(a)) {
 					// round
 					return Math.round(a);
@@ -535,7 +483,6 @@
 			};
 
 			$e.sqrt = function (a) {
-				a = $e.normalize(a);
 				if (isNumber(a)) {
 					// square root
 					return Math.sqrt(a);
@@ -549,7 +496,6 @@
 			};
 
 			$e.sin = function (a) {
-				a = $e.normalize(a);
 				if (isNumber(a)) {
 					// sine
 					return Math.sin(a);
@@ -558,7 +504,6 @@
 			};
 
 			$e.tan = function (a) {
-				a = $e.normalize(a);
 				if (isNumber(a)) {
 					// tangent
 					return Math.tan(a);
@@ -579,14 +524,22 @@
 			};
 
 			$e.replace = function (a, b, c) {
-				a = $e.normalize(a);
-				b = $e.normalize(b);
-				c = $e.normalize(c);
 				if ((isString(a) || isRegex(a)) && isString(b) && isString(c)) {
 					// replace
 					return b.replace(a, c);
 				}
 				error(getTypeError('t.replace', [a, b, c]));
+			};
+
+			$e.unwrap = function (a) {
+				if (isArray(a)) {
+					// unwrap
+					if (a.length === 1) {
+						return a[0];
+					}
+					return a;
+				}
+				error(getTypeError('t.unwrap', [a]));
 			};
 
 			$e.evaluate = function (a) {
@@ -595,14 +548,13 @@
 			};
 
 			$e.negate = function (a) {
-				a = $e.normalize(a);
 				if (isNumber(a)) {
 					// negate
 					return -a;
 				}
 				if (isArray(a)) {
 					// reverse
-					return a.reverse();
+					return deepCopy(a).reverse();
 				}
 				if (isString(a)) {
 					// reverse
@@ -616,9 +568,6 @@
 			};
 
 			$e.setLookupIndex = function (a, b, c) {
-				a = $e.normalize(a);
-				b = $e.normalize(b);
-				c = $e.normalize(c);
 				if (isArray(a) && isNumber(b) && (isNumber(c) || isString(c) || isArray(c) || isBoolean(c))) {
 					// set value at index
 					a[b] = c;
@@ -632,7 +581,6 @@
 			};
 
 			$e.charCode = function (a) {
-				a = $e.normalize(a);
 				if (isString(a)) {
 					// character code
 					return a.charCodeAt(0);
@@ -641,7 +589,6 @@
 			};
 
 			$e.expEnd = function (a) {
-				a = $e.normalize(a);
 				if (isNumber(a)) {
 					// exponential
 					return Math.exp(a);
@@ -654,8 +601,6 @@
 			};
 
 			$e.indexOf = function (a, b) {
-				a = $e.normalize(a);
-				b = $e.normalize(b);
 				if ((isArray(a) || isString(a)) && (isNumber(b) || isString(b))) {
 					// index of
 					return a.indexOf(b);
@@ -664,7 +609,6 @@
 			};
 
 			$e.head = function (a) {
-				a = $e.normalize(a);
 				if (isNumber(a)) {
 					// increment
 					return a + 1;
@@ -679,8 +623,6 @@
 			$e.join = function (a, b) {
 				var i,
 					result;
-				a = $e.normalize(a);
-				b = $e.normalize(b);
 				if (isArray(a) && (isString(b) || isNumber(b))) {
 					// join
 					result = '';
@@ -694,7 +636,6 @@
 			};
 
 			$e.lnLength = function (a) {
-				a = $e.normalize(a);
 				if (isNumber(a)) {
 					// natural log
 					return Math.log(a);
@@ -708,7 +649,7 @@
 
 			$e.print = function (a) {
 				// write to output stream
-				var result = $e.normalize(a);
+				var result = a;
 				if (result === undefined) {
 					result = '';
 				}
@@ -721,13 +662,12 @@
 
 			$e.equal = function (a, b) {
 				// stringify allows for nested array comparisons by value (no support for object/function comparisons)
-				return JSON.stringify($e.normalize(a)) === JSON.stringify($e.normalize(b));
+				return JSON.stringify(a) === JSON.stringify(b);
 			};
 
 			$e.range = function (a) {
 				var i,
 					result = [];
-				a = $e.normalize(a);
 				if (isNumber(a)) {
 					// range
 					for (i = 0; i < a; i++) {
@@ -744,7 +684,7 @@
 				}
 				if (isArray(a)) {
 					// range
-					return a;
+					return deepCopy(a);
 				}
 				error(getTypeError('t.range', [a]));
 			};
@@ -752,7 +692,6 @@
 			$e.sum = function (a) {
 				var i,
 					result;
-				a = $e.normalize(a);
 				if (isArray(a)) {
 					// sum
 					result = '';
@@ -765,7 +704,6 @@
 			};
 
 			$e.tail = function (a) {
-				a = $e.normalize(a);
 				if (isNumber(a)) {
 					// decrement
 					return a - 1;
@@ -784,8 +722,6 @@
 			$e.elementWiseAdd = function (a, b) {
 				var i,
 					result = [];
-				a = $e.normalize(a);
-				b = $e.normalize(b);
 				if (isArray(a)) {
 					// element-wise add
 					if (isArray(b)) {
@@ -805,12 +741,10 @@
 			};
 
 			$e.or = function (a, b) {
-				return $e.normalize(a) || $e.normalize(b);
+				return a || b;
 			};
 
 			$e.compare = function (a, b) {
-				a = $e.normalize(a);
-				b = $e.normalize(b);
 				if (isString(a) && isString(b)) {
 					// numeric collation is used by left padding shortest string with NUL
 					if (a.length > b.length) {
@@ -835,8 +769,6 @@
 
 			$e.repeat = function (a, b) {
 				var i = 1;
-				a = $e.normalize(a);
-				b = $e.normalize(b);
 				if (isString(a) && isNumber(b)) {
 					while (i < b) {
 						a += a;
@@ -1038,11 +970,17 @@
 			operator('P', 't.popRegex', 1, true, -1, function (a) { return 't.popRegex(' + a + ')'; });
 			operator('R', 't.replace', 3, true, -1, function (a, b, c) { return 't.replace(' + a + ',' + b + ',' + c + ')'; });
 			operator('T', null, 0, false, -1, function () { return 'true'; });
+			operator('U', 't.unwrap', 1, true, -1, function (a) { return 't.unwrap(' + a + ')'; });
 			operator('V', 't.evaluate', 1, true, -1, function (a) { return 't.evaluate(' + a + ')'; });
+			operator('W', null, 1, true, -1, function (a) { return '[' + a + ']'; });
 			operator('\\', null, 1, true, -1, function (a) { return '\'' + a + '\''; });
 			operator('^', 't.pow', 2, true, -1, function (a, b) { return 't.pow(' + a + ',' + b + ')'; });
 			operator('_', 't.negate', 1, true, -1, function (a) { return 't.negate(' + a + ')'; });
 			operator('`', 't.setLookupIndex', 3, true, -1, function (a, b, c) { return 't.setLookupIndex(' + a + ',' + b + ',' + c + ')'; });
+			operator('b', null, 3, false, 3, function (a, b, c) {
+				var max = getVariable();
+				return max + '=' + b + ';for(' + a + '=0;' + a + '<' + max + ';' + a + '++){' + c + '}';
+			});
 			operator('c', 't.charCode', 1, true, -1, function (a) { return 't.charCode(' + a + ')'; });
 			operator('d', null, 3, false, -1, function (a, b, c) {
 				var i = getVariable(),
@@ -1056,7 +994,10 @@
 			});
 			operator('h', 't.head', 1, true, -1, function (a) { return 't.head(' + a + ')'; });
 			operator('j', 't.join', 2, true, -1, function (a, b) { return 't.join(' + a + ',' + b + ')'; });
-			operator('k', null, 3, false, -1, function (a, b, c) { return a + '=' + b + '[0];' + c + '=' + b + '[1];'; });
+			operator('k', null, 3, false, -1, function (a, b, c) {
+				var expand = getVariable();
+				return 'var ' + expand + '=' + b + ';' + a + '=' + expand + '[0];' + c + '=' + expand + '[1];';
+			});
 			operator('l', 't.lnLength', 1, true, -1, function (a) { return 't.lnLength(' + a + ')'; });
 			operator('m', null, 3, true, -1, function (a, b, c) {
 				return 't.range(' + a + ').map(function(' + b + '){return ' + c + ';})';
@@ -1066,12 +1007,7 @@
 			operator('r', 't.range', 1, true, -1, function (a) { return 't.range(' + a + ')'; });
 			operator('s', 't.sum', 1, true, -1, function (a) { return 't.sum(' + a + ')'; });
 			operator('t', 't.tail', 1, true, -1, function (a) { return 't.tail(' + a + ')'; });
-			operator('u', null, 3, false, 3, function (a, b, c) {
-				var max = getVariable();
-				return max + '=' + b + ';for(' + a + '=0;' + a + '<' + max + ';' + a + '++){' + c + '}';
-			});
 			operator('v', 't.elementWiseAdd', 2, true, -1, function (a, b) { return 't.elementWiseAdd(' + a + ',' + b + ')'; });
-			operator('w', null, 1, true, -1, function (a) { return '[' + a + ']'; });
 			operator('|', 't.or', 2, true, -1, false, function (a, b) { return 't.or(' + a + ',' + b + ')'; });
 			operator('~', 't.compare', 3, true, -1, function (a, b, c) { return 't.compare(' + a + ',' + b + ',' + c + ')'; });
 			return $o;

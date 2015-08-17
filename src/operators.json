@@ -276,10 +276,10 @@
 					"name": "Assign",
 					"arguments":
 						[
-							{"name": "symbol", "type": ["variable"]},
+							{"name": "var", "type": ["variable"]},
 							{"name": "value", "type": ["number", "string", "array"]}
 						],
-					"description": "Assigns value to variable symbol."
+					"description": "Assigns value to var."
 				}
 			]
 	},
@@ -800,6 +800,21 @@
 			]
 	},
 	{
+		"symbol": "U",
+		"arity": 1,
+		"variants":
+			[
+				{
+					"name": "Unwrap array",
+					"arguments":
+						[
+							{"name": "arr", "type": ["array"]}
+						],
+					"description": "Returns the first element of arr."
+				}
+			]
+	},
+	{
 		"symbol": "V",
 		"arity": 1,
 		"variants":
@@ -811,6 +826,21 @@
 							{"name": "value", "type": ["number", "string", "boolean", "array"]}
 						],
 					"description": "Evaluates the value."
+				}
+			]
+	},
+	{
+		"symbol": "W",
+		"arity": 1,
+		"variants":
+			[
+				{
+					"name": "Wrap in array",
+					"arguments":
+						[
+							{"name": "value", "type": ["number", "string", "array", "boolean"]}
+						],
+					"description": "Returns single element array containing value."
 				}
 			]
 	},
@@ -895,6 +925,23 @@
 			]
 	},
 	{
+		"symbol": "b",
+		"arity": 3,
+		"variants":
+			[
+				{
+					"name": "For loop beginning at 0",
+					"arguments":
+						[
+							{"name": "var", "type": ["variable"]},
+							{"name": "end", "type": ["string", "boolean", "array", "string", "number"]},
+							{"name": "body", "type": ["body"]}
+						],
+					"description": "Iterates from var=0 to end, performing body each iteration."
+				}
+			]
+	},
+	{
 		"symbol": "c",
 		"arity": 1,
 		"variants":
@@ -961,9 +1008,9 @@
 							{"name": "start", "type": ["string", "boolean", "array", "string", "number"]},
 							{"name": "var", "type": ["variable"]},
 							{"name": "end", "type": ["string", "boolean", "array", "string", "number"]},
-							{"name": "statement", "type": ["statement"]}
+							{"name": "body", "type": ["body"]}
 						],
-					"description": "Iterates from var=start to end, performing statement each iteration."
+					"description": "Iterates from var=start to end, performing body each iteration."
 				}
 			]
 	},
@@ -1160,21 +1207,6 @@
 							{"name": "right", "type": ["array", "number", "string"]}
 						],
 					"description": "Adds each of the elements in left with the corresponding element in right."
-				}
-			]
-	},
-	{
-		"symbol": "w",
-		"arity": 1,
-		"variants":
-			[
-				{
-					"name": "Wrap with array",
-					"arguments":
-						[
-							{"name": "value", "type": ["number", "string", "array", "boolean"]}
-						],
-					"description": "Returns single element array containing value."
 				}
 			]
 	},
