@@ -43,9 +43,49 @@
 				return errorText;
 			}
 
+			function flatten(a) {
+				return [].concat.apply([], a);
+			}
+
+			function cartesianProduct(a, b) {
+				var result = [],
+					i,
+					j;
+				if (isArray(a) && isArray(b)) {
+					for (i = 0; i < a.length; i++) {
+						for (j = 0; j < b.length; j++) {
+							result.push(flatten([a[i], b[j]]));
+						}
+					}
+					return result;
+				}
+				if (isString(a) && isString(b)) {
+					for (i = 0; i < a.length; i++) {
+						for (j = 0; j < b.length; j++) {
+							result.push(a[i] + b[j]);
+						}
+					}
+					return result;
+				}
+				if (isArray(a) && isNumber(b)) {
+					for (i = 0; i < a.length; i++) {
+						result.push(a[i] * b);
+					}
+					return result;
+				}
+				if (isNumber(a) && isArray(b)) {
+					for (i = 0; i < b.length; i++) {
+						result.push(b[i] * a);
+					}
+					return result;
+				}
+				error('Cannot determine Cartesian product for \'' + a + '\' and \'' + b + '\'');
+			}
+
 			$e.normalize = function (a) {
 				if (isArray(a)) {
 					if (a.length === 1) {
+						// unwrap single element arrays
 						if (isArray(a[0])) {
 							return a[0].slice(0);
 						}
@@ -72,8 +112,7 @@
 
 			$e.multiplyRepeat = function (a, b) {
 				var i,
-					result = [],
-					j;
+					result = [];
 				a = $e.normalize(a);
 				b = $e.normalize(b);
 				if (isNumber(a) && isNumber(b)) {
@@ -94,23 +133,9 @@
 					}
 					return result;
 				}
-				if (isArray(a) && isArray(b)) {
-					// cartesian product
-					for (i = 0; i < a.length; i++) {
-						for (j = 0; j < b.length; j++) {
-							result.push(a[i] * b[j]);
-						}
-					}
-					return result;
-				}
-				if (isString(a) && isString(b)) {
-					// cartesian product
-					for (i = 0; i < a.length; i++) {
-						for (j = 0; j < b.length; j++) {
-							result.push(a[i] + b[j]);
-						}
-					}
-					return result;
+				if ((isArray(a) && isArray(b)) || (isString(a) && isString(b))) {
+					// Cartesian product
+					return cartesianProduct(a, b);
 				}
 				if (isString(a) && isNumber(b)) {
 					// repeat
@@ -198,15 +223,35 @@
 					// split
 					return a.split(b);
 				}
+				if (isNumber(a) && isString(b)) {
+					// split into groups
+					for (i = 0; i < b.length; i += a) {
+						result.push(b.substr(i, a));
+					}
+					return result;
+				}
 				error(getTypeError('t.divideSplit', [a, b]));
 			};
 
 			$e.pow = function (a, b) {
+				var i,
+					result;
 				a = $e.normalize(a);
 				b = $e.normalize(b);
 				if (isNumber(a) && isNumber(b)) {
 					// power
 					return Math.pow(a, b);
+				}
+				if ((isNumber(a) && isArray(b)) || (isNumber(a) && isString(b))) {
+					// repeated Cartesian product
+					result = [];
+					if (a > 0) {
+						result = 1;
+					}
+					for (i = 0; i < a; i++) {
+						result = cartesianProduct(b, result);
+					}
+					return result;
 				}
 				error(getTypeError('t.pow', [a, b]));
 			};
@@ -254,12 +299,48 @@
 			$e.getLookupIndex = function (a, b) {
 				a = $e.normalize(a);
 				b = $e.normalize(b);
-				if ((isArray(a) || isString(a)) && isNumber(b)) {
+				if (isNumber(a) && (isArray(b) || isString(b))) {
 					// read value at index
-					return a[b];
+					return b[a];
 				}
 				error(getTypeError('t.getLookupIndex', [a, b]));
 			};
+
+			$e.leftShiftRotate = function (a, b) {
+				var i;
+				a = $e.normalize(a);
+				b = $e.normalize(b);
+				if (isNumber(a) && (isString(b) || isArray(b))) {
+					// circular left shift
+					for (i = 0; i < a; i++) {
+						b.unshift(b.pop());
+					}
+					return b;
+				}
+				if (isNumber(a) && isNumber(b)) {
+					// binary left shift
+					return b << a;
+				}
+				error(getTypeError('t.leftShiftRotate', [a, b]));
+			}
+
+			$e.rightShiftRotate = function (a, b) {
+				var i;
+				a = $e.normalize(a);
+				b = $e.normalize(b);
+				if (isNumber(a) && (isString(b) || isArray(b))) {
+					// circular right shift
+					for (i = 0; i < a; i++) {
+						b.push(b.shift());
+					}
+					return b;
+				}
+				if (isNumber(a) && isNumber(b)) {
+					// binary right shift
+					return b >> a;
+				}
+				error(getTypeError('t.rightShiftRotate', [a, b]));
+			}
 
 			$e.changeCaseFlatten = function (a) {
 				var i,
@@ -279,7 +360,7 @@
 				}
 				if (isArray(a)) {
 					// flatten
-					return [].concat.apply([], a);
+					return flatten(a);
 				}
 				error(getTypeError('t.changeCaseFlatten', [a]));
 			};
@@ -337,11 +418,29 @@
 			};
 
 			$e.radix = function (a, b) {
+				var result,
+					i;
 				a = $e.normalize(a);
 				b = $e.normalize(b);
-				if ((isNumber(a) || isString(a)) && isNumber(b)) {
-					// radix
-					return a.toString(b);
+				if (isNumber(a) && isNumber(b)) {
+					// base 10 to base a
+					return b.toString(a);
+				}
+				if (isNumber(a) && isString(b)) {
+					// character codes of string in base a
+					result = [];
+					for (i = 0; i < b.length; i++) {
+						result.push(b[i].charCodeAt(0).toString(a));
+					}
+					return result;
+				}
+				if (isNumber(a) && isArray(b)) {
+					// string representation in base a
+					result = '';
+					for (i = 0; i < b.length; i++) {
+						result += String.fromCharCode(parseInt(b[i], a));
+					}
+					return result;
 				}
 				error(getTypeError('t.radix', [a, b]));
 			};
@@ -673,6 +772,10 @@
 				}
 				if (isArray(a) || isString(a)) {
 					// tail
+					if (a.length === 2) {
+						// unwrap because a single element will be returned
+						return a[1];
+					}
 					return a.slice(1, a.length);
 				}
 				error(getTypeError('t.tail', [a]));
@@ -900,7 +1003,9 @@
 			operator('=', null, 2, false, -1, function (a, b) { return a + '=' + b + ';'; });
 			operator('>', 't.greaterThanUpperSlice', 2, true, -1, function (a, b) { return 't.greaterThanUpperSlice(' + a + ',' + b + ')'; });
 			operator('?', 't.ternary', 3, true, -1, function (a, b, c) { return 't.ternary(' + a + ',' + b + ',' + c + ')'; });
-			operator('@', 't.getLookupIndex', 2, true, -1, function (a, b) { return 't.getLookupIndex(' + a + ',' + b + ')'; });			
+			operator('@', 't.getLookupIndex', 2, true, -1, function (a, b) { return 't.getLookupIndex(' + a + ',' + b + ')'; });
+			operator('B<', 't.leftShiftRotate', 2, true, -1, function (a, b) { return 't.leftShiftRotate(' + a + ',' + b + ')'; });
+			operator('B>', 't.rightShiftRotate', 2, true, -1, function (a, b) { return 't.rightShiftRotate(' + a + ',' + b + ')'; });
 			operator('C', 't.changeCaseFlatten', 1, true, -1, function (a) { return 't.changeCaseFlatten(' + a + ')'; });
 			operator('E', null, 3, false, 3, function (a, b, c) {
 				var i = getVariable(),

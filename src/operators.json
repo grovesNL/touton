@@ -216,6 +216,15 @@
 							{"name": "separator", "type": ["string", "number"]}
 						],
 					"description": "Returns an array of value split by separator."
+				},
+				{
+					"name": "Split into groups",
+					"arguments":
+						[
+							{"name": "size", "type": ["number"]},
+							{"name": "str", "type": ["string"]}
+						],
+					"description": "Splits str into groups of size and returns the resultant array. If str's length is not a multiple of size, the last element's length will be less than size."
 				}
 			]
 	},
@@ -325,8 +334,8 @@
 					"name": "Get value at index",
 					"arguments":
 						[
-							{"name": "lookup", "type": ["array", "string"]},
-							{"name": "index", "type": ["number"]}
+							{"name": "index", "type": ["number"]},
+							{"name": "lookup", "type": ["array", "string"]}
 						],
 					"description": "Returns the value at lookup[index]."
 				}
@@ -511,13 +520,31 @@
 		"variants":
 			[
 				{
-					"name": "Radix",
+					"name": "Convert to base",
 					"arguments":
 						[
-							{"name": "value", "type": ["number", "string"]},
-							{"name": "radix", "type": ["number"]}
+							{"name": "radix", "type": ["number"]},
+							{"name": "value", "type": ["number"]}
 						],
 					"description": "Returns the value in the specified radix."
+				},
+				{
+					"name": "Character codes in base",
+					"arguments":
+						[
+							{"name": "radix", "type": ["number"]},
+							{"name": "value", "type": ["string"]}
+						],
+					"description": "Returns an array of character codes in the specified radix. For example, for base 2 this would return each character represented as unpadded binary."
+				},
+				{
+					"name": "String representation in base",
+					"arguments":
+						[
+							{"name": "radix", "type": ["number"]},
+							{"name": "arr", "type": ["array"]}
+						],
+					"description": "Converts the character codes of arr in base radix to a string representation."
 				}
 			]
 	},
@@ -815,6 +842,15 @@
 							{"name": "exponent", "type": ["number"]}
 						],
 					"description": "Raises value to the power of exponent."
+				},
+				{
+					"name": "Repeated Cartesian product",
+					"arguments":
+						[
+							{"name": "num", "type": ["number"]},
+							{"name": "value", "type": ["array", "string"]}
+						],
+					"description": "Calculates the Cartesian product of value multipled by itself for num times."
 				}
 			]
 	},
@@ -1019,7 +1055,7 @@
 					"name": "Map",
 					"arguments":
 						[
-							{"name": "arr", "type": ["array"]},
+							{"name": "arr", "type": ["array", "number", "string"]},
 							{"name": "var", "type": ["variable"]},
 							{"name": "expr", "type": ["expression"]}
 						],
