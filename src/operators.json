@@ -30,21 +30,6 @@
 			]
 	},
 	{
-		"symbol": "#",
-		"arity": 1,
-		"variants":
-			[
-				{
-					"name": "Splat",
-					"arguments": 
-						[
-							{"name": "arr", "type": ["array"]}
-						],
-					"description": "Passes the elements of arr as arguments to the parent operator."
-				}
-			]
-	},
-	{
 		"symbol" : "%",
 		"arity": 2,
 		"variants":
@@ -53,10 +38,10 @@
 					"name": "Modulus",
 					"arguments":
 						[
-							{"name": "dividend", "type": ["number"]},
-							{"name": "divisor", "type": ["number"]}
+							{"name": "dividend", "type": ["number", "array"]},
+							{"name": "divisor", "type": ["number", "array"]}
 						],
-					"description": "Divides the dividend by the divisor and returns the remainder."
+					"description": "Divides each element of the dividend by each element of the divisor and returns each remainder."
 				}
 			]
 	},
@@ -85,8 +70,8 @@
 					"name": "Multiply",
 					"arguments":
 						[
-							{"name": "left", "type": ["number", "array"]},
-							{"name": "right", "type": ["number", "array"]}
+							{"name": "left", "type": ["number", "array", "boolean"]},
+							{"name": "right", "type": ["number", "array", "boolean"]}
 						],
 					"description": "Multiplies left by right when either argument is a number and the other is a number or array."
 				},
@@ -206,7 +191,7 @@
 							{"name": "dividend", "type": ["number", "array"]},
 							{"name": "divisor", "type": ["number", "array"]}
 						],
-					"description": "Divides each element of the dividend by the divisor."
+					"description": "Divides each element of the dividend by the each element of the divisor."
 				},
 				{
 					"name": "Split",
@@ -225,6 +210,21 @@
 							{"name": "str", "type": ["string"]}
 						],
 					"description": "Splits str into groups of size and returns the resultant array. If str's length is not a multiple of size, the last element's length will be less than size."
+				}
+			]
+	},
+	{
+		"symbol": ":",
+		"arity": 1,
+		"variants":
+			[
+				{
+					"name": "Splat",
+					"arguments": 
+						[
+							{"name": "arr", "type": ["array"]}
+						],
+					"description": "Passes the elements of arr as arguments to the parent operator."
 				}
 			]
 	},
@@ -383,15 +383,19 @@
 	},
 	{
 		"symbol": "F",
-		"arity": 0,
+		"arity": 4,
 		"variants":
 			[
 				{
-					"name": "False",
+					"name": "For loop",
 					"arguments":
 						[
+							{"name": "start", "type": ["string", "boolean", "array", "string", "number"]},
+							{"name": "var", "type": ["variable"]},
+							{"name": "end", "type": ["string", "boolean", "array", "string", "number"]},
+							{"name": "body", "type": ["body"]}
 						],
-					"description": "Returns false."
+					"description": "Iterates from var=start to end, performing body each iteration."
 				}
 			]
 	},
@@ -527,6 +531,15 @@
 							{"name": "value", "type": ["number"]}
 						],
 					"description": "Returns the value in the specified radix."
+				},
+				{
+					"name": "Parse integer",
+					"arguments":
+						[
+							{"name": "value", "type": ["string"]},
+							{"name": "radix", "type": ["number"]}
+						],
+					"description": "Returns the value as an integer in the specified radix."
 				},
 				{
 					"name": "Character codes in base",
@@ -680,9 +693,9 @@
 					"name": "Round to nearest integer",
 					"arguments":
 						[
-							{"name": "num", "type": ["number"]}
+							{"name": "value", "type": ["number", "string", "array"]}
 						],
-					"description": "Returns num rounded to the nearest integer."
+					"description": "Returns value rounded to the nearest integer. If value is an array, all values are rounded."
 				}
 			]
 	},
@@ -769,6 +782,21 @@
 			]
 	},
 	{
+		"symbol": "Q",
+		"arity": 1,
+		"variants":
+			[
+				{
+					"name": "Evaluate",
+					"arguments":
+						[
+							{"name": "value", "type": ["number", "string", "boolean", "array"]}
+						],
+					"description": "Evaluates the value."
+				}
+			]
+	},
+	{
 		"symbol": "R",
 		"arity": 3,
 		"variants":
@@ -786,20 +814,6 @@
 			]
 	},
 	{
-		"symbol": "T",
-		"arity": 0,
-		"variants":
-			[
-				{
-					"name": "True",
-					"arguments":
-						[
-						],
-					"description": "Returns true."
-				}
-			]
-	},
-	{
 		"symbol": "U",
 		"arity": 1,
 		"variants":
@@ -811,36 +825,6 @@
 							{"name": "arr", "type": ["array"]}
 						],
 					"description": "Returns the first element of arr."
-				}
-			]
-	},
-	{
-		"symbol": "V",
-		"arity": 1,
-		"variants":
-			[
-				{
-					"name": "Evaluate",
-					"arguments":
-						[
-							{"name": "value", "type": ["number", "string", "boolean", "array"]}
-						],
-					"description": "Evaluates the value."
-				}
-			]
-	},
-	{
-		"symbol": "W",
-		"arity": 1,
-		"variants":
-			[
-				{
-					"name": "Wrap in array",
-					"arguments":
-						[
-							{"name": "value", "type": ["number", "string", "array", "boolean"]}
-						],
-					"description": "Returns single element array containing value."
 				}
 			]
 	},
@@ -997,24 +981,6 @@
 			]
 	},
 	{
-		"symbol": "f",
-		"arity": 4,
-		"variants":
-			[
-				{
-					"name": "For loop",
-					"arguments":
-						[
-							{"name": "start", "type": ["string", "boolean", "array", "string", "number"]},
-							{"name": "var", "type": ["variable"]},
-							{"name": "end", "type": ["string", "boolean", "array", "string", "number"]},
-							{"name": "body", "type": ["body"]}
-						],
-					"description": "Iterates from var=start to end, performing body each iteration."
-				}
-			]
-	},
-	{
 		"symbol": "h",
 		"arity": 1,
 		"variants":
@@ -1102,11 +1068,11 @@
 					"name": "Map",
 					"arguments":
 						[
-							{"name": "arr", "type": ["array", "number", "string"]},
+							{"name": "val", "type": ["array", "number", "string"]},
 							{"name": "var", "type": ["variable"]},
 							{"name": "expr", "type": ["expression"]}
 						],
-					"description": "Applies expr to var for each element of arr."
+					"description": "Applies expr to var for each element of val and returns the result."
 				}
 			]
 	},
@@ -1147,12 +1113,12 @@
 		"variants":
 			[
 				{
-					"name": "Range",
+					"name": "Unary range",
 					"arguments":
 						[
 							{"name": "value", "type": ["array", "string", "number"]}
 						],
-					"description": "Returns a range created from the value provided."
+					"description": "Returns a range created from the value provided. When value is a number: if value > 0 the returned range is [0, value), else if value < 0 the returned range is [value, 0)."
 				}
 			]
 	},
@@ -1167,7 +1133,7 @@
 						[
 							{"name": "arr", "type": ["array"]}
 						],
-					"description": "Returns the sum of the array."
+					"description": "Returns the sum of the array. Performs basic type coercion when mixed value types are provided."
 				}
 			]
 	},
@@ -1195,6 +1161,24 @@
 			]
 	},
 	{
+		"symbol": "u",
+		"arity": 4,
+		"variants":
+			[
+				{
+					"name": "Reduce",
+					"arguments":
+						[
+							{"name": "val", "type": ["array", "number", "string"]},
+							{"name": "varLeft", "type": ["variable"]},
+							{"name": "varRight", "type": ["variable"]},
+							{"name": "expr", "type": ["expression"]}
+						],
+					"description": "Reduces val by iteratively applying expr to varLeft and varRight."
+				}
+			]
+	},
+	{
 		"symbol": "v",
 		"arity": 2,
 		"variants":
@@ -1207,6 +1191,21 @@
 							{"name": "right", "type": ["array", "number", "string"]}
 						],
 					"description": "Adds each of the elements in left with the corresponding element in right."
+				}
+			]
+	},
+	{
+		"symbol": "w",
+		"arity": 1,
+		"variants":
+			[
+				{
+					"name": "Wrap in array",
+					"arguments":
+						[
+							{"name": "value", "type": ["number", "string", "array", "boolean"]}
+						],
+					"description": "Returns single element array containing value."
 				}
 			]
 	},
@@ -1241,5 +1240,21 @@
 					"description": "Compares left to right using binary comparison on matching value types. Numeric collation is assumed for string comparisons."
 				}
 			]
+	},
+	{
+	"symbol": ".mo",
+	"arity": 2,
+	"variants":
+		[
+			{
+				"name": "Multiple of",
+				"arguments": 
+					[
+						{"name": "value", "type": ["number"]},
+						{"name": "factor", "type": ["number", "array"]}
+					],
+				"description": "When factor is a number, returns whether value is a multiple of factor. When factor is an array, returns whether value is a multiple of any of the elements."
+			}
+		]
 	}
 ]

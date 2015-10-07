@@ -1,9 +1,10 @@
 (function () {
 	'use strict';
 	var touton = function (options) {
-		var print = function (output) {
-			console.log(output);
-		};
+		var variables = {},
+			print = function (output) {
+				console.log(output);
+			};
 
 		function error(errorText) {
 			print(errorText);
@@ -13,7 +14,8 @@
 		/*eslint-disable no-unused-vars*/
 		var environment = (function () {
 		/*eslint-enable no-unused-vars*/
-			var $e = {};
+			var $e = {},
+				printedAlready = false;
 
 			function isNumber(value) {
 				return typeof value === 'number';
@@ -51,6 +53,56 @@
 				return JSON.parse(JSON.stringify(a));
 			}
 
+			function range(a, b) {
+				var i,
+					result = [];
+				if (b === undefined) {
+					// one argument
+					if (isNumber(a)) {
+						// range
+						if (a > 0) {
+							for (i = 0; i < a; i++) {
+								result.push(i);
+							}
+						} else if (a < 0) {
+							for (i = a; i < 0; i++) {
+								result.push(i);
+							}
+						}
+						return result;
+					}
+					if (isString(a)) {
+						// range
+						for (i = 0; i < a.length; i++) {
+							result.push(a[i]);
+						}
+						return result;
+					}
+					if (isArray(a)) {
+						// range
+						return a;
+					}
+					error('Unhandled value type for \'' + a + '\'.');
+				}
+
+				// two arguments
+				if (isNumber(a) && isNumber(b)) {
+					// range
+					if (a < b) {
+						for (i = a; i < b; i++) {
+							result.push(i);
+						}
+					} else if (b > a) {
+						for (i = b; i < a; i++) {
+							result.push(i);
+						}
+					}
+					return result;
+				}
+
+				error('Unhandled value type for \'' + a + '\' and \'' + b + '\'.');
+			}
+
 			function cartesianProduct(a, b) {
 				var result = [],
 					i,
@@ -86,14 +138,69 @@
 				error('Cannot determine Cartesian product for \'' + a + '\' and \'' + b + '\'');
 			}
 
+			function isPrime(a) {
+				var i,
+					max = Math.sqrt(a);
+				if ((a < 2) || (a % 2 === 0 && a !== 2)) {
+					return false;
+				}
+				for (i = 2; i <= max; i++) {
+					if (a % i === 0) {
+						return false;
+					}
+				}
+				return true;
+			}
+
 			$e.and = function (a, b) {
 				return a && b;
 			};
 
+			function greatestCommonDivisor(a, b) {
+				var temp;
+				if (a < 0) {
+					a = -a;
+				}
+				if (b < 0) {
+					b = -b;
+				}
+				if (b > a) {
+					temp = a;
+					a = b;
+					b = temp;
+				}
+				for (;;) {
+					if (b === 0) {
+						return a;
+					}
+					a %= b;
+					if (a === 0) {
+						return b;
+					}
+					b %= a;
+				}
+			}
+
 			$e.mod = function (a, b) {
+				var i,
+					result = [];
 				if (isNumber(a) && isNumber(b)) {
 					// modulus
 					return a % b;
+				}
+				if (isNumber(a) && isArray(b)) {
+					// element-wise modulus
+					for (i = 0; i < b.length; i++) {
+						result.push(a % b[i]);
+					}
+					return result;
+				}
+				if (isArray(a) && isNumber(b)) {
+					// element-wise modulus
+					for (i = 0; i < a.length; i++) {
+						result.push(a[i] % b);
+					}
+					return result;
 				}
 				error(getTypeError('t.mod', [a, b]));
 			};
@@ -101,7 +208,7 @@
 			$e.multiplyRepeat = function (a, b) {
 				var i,
 					result = [];
-				if (isNumber(a) && isNumber(b)) {
+				if ((isNumber(a) || isBoolean(a)) && (isNumber(b) || isBoolean(b))) {
 					// multiply
 					return a * b;
 				}
@@ -177,6 +284,247 @@
 				error(getTypeError('t.subtractRemove', [a, b]));
 			};
 
+			$e.isPalindrome = function (a) {
+				var i,
+					value,
+					len;
+				if (isNumber(a) || isString(a) || isArray(a)) {
+					if (isNumber(a)) {
+						value = a.toString(10);
+					} else {
+						value = a;
+					}
+					len = value.length;
+					for (i = 0; i < parseInt(len / 2, 10); i++) {
+						if (value[i] !== value[len - i - 1]) {
+							return false;
+						}
+					}
+					return true;
+				}
+				error(getTypeError('t.isPalindrome', [a]));
+			};
+
+			$e.primeDecomposition = function (a) {
+				var i,
+					max = Math.sqrt(a),
+					primes;
+				if (isNumber(a)) {
+					// prime decomposition
+					if (a < 2) {
+						return [];
+					}
+					if (isPrime(a)) {
+						return [a];
+					}
+					primes = [];
+					for (i = 2; i <= max; i++) {
+						if (isPrime(i) && a % i === 0) {
+							primes.push(i);
+							a /= i;
+							max = Math.sqrt(a);
+							i--;
+						}
+					}
+					if (a !== 1) {
+						primes.push(a);
+					}
+					return primes;
+				}
+				error(getTypeError('t.primeDecomposition', [a]));
+			};
+
+			$e.allDivisors = function (a) {
+				var i,
+					small,
+					large;
+				if (isNumber(a)) {
+					// all divisors
+					if (a < 0) {
+						a = -a;
+					}
+					small = [];
+					large = [];
+					for (i = 1; i < Math.sqrt(a); i++) {
+						if (a % i === 0) {
+							small.push(i);
+							large.push(a / i);
+						}
+					}
+					if (a % Math.sqrt(a) === 0) {
+						small.push(Math.sqrt(a));
+					}
+					large.reverse();
+					return small.concat(large);
+				}
+				error(getTypeError('t.allDivisors', [a]));
+			};
+
+			$e.combinations = function (a, b) {
+				var i,
+					result;
+				if (isNumber(a) && isNumber(b)) {
+					result = 1;
+					for (i = 1; i <= b; i++) {
+						result *= (a - i + 1) / i;
+					}
+					return result;
+				}
+				error(getTypeError('t.combinations', [a, b]));
+			};
+
+			$e.greatestCommonDivisor = function (a) {
+				var i,
+					result;
+				if (isArray(a)) {
+					// greatest common divisor
+					result = a[0];
+					for (i = 1; i < a.length; i++) {
+						result = greatestCommonDivisor(result, a[i]);
+					}
+					return result;
+				}
+				error(getTypeError('t.greatestCommonDivisor', [a]));
+			};
+			
+			$e.leastCommonMultiple = function (a) {
+				var i,
+					result;
+				if (isArray(a)) {
+					// least common multiple
+					result = a[0];
+					for (i = 1; i < a.length; i++) {
+						result = Math.abs(result * a[i]) / greatestCommonDivisor(result, a[i]);
+					}
+					return result;
+				}
+				error(getTypeError('t.leastCommonMultiple', [a]));
+			};
+
+			$e.multipleOf = function (a, b) {
+				var i;
+				if (isNumber(a) && isNumber(b)) {
+					// multiple of
+					return Math.abs(a % b) === 0;
+				}
+				if (isNumber(a) && isArray(b)) {
+					// multiple of any
+					for (i = 0; i < b.length; i++) {
+						if (Math.abs(a % b[i]) === 0) {
+							return true;
+						}
+					}
+					return false;
+				}
+				if (isArray(a) && isNumber(b)) {
+					// multiple of all
+					for (i = 0; i < b.length; i++) {
+						if (Math.abs(a % b[i]) !== 0) {
+							return false;
+						}
+					}
+					return true;
+				}
+				error(getTypeError('t.multipleOf', [a, b]));
+			};
+
+			$e.collatz = function (a) {
+				var value,
+					result = [];
+				if (isNumber(a)) {
+					// Collatz
+					if (a === 0) {
+						return [1];
+					}
+					if (a < 0) {
+						a = -a;
+					}
+					value = a;
+					result.push(value);
+					while (value != 1) {
+						if (value % 2 === 0) {
+							value /= 2;
+						} else {
+							value = 3 * value + 1;
+						}
+						result.push(value);
+					}
+					return result;
+				}
+				error(getTypeError('t.collatz', [a]));
+			};
+
+			$e.fibonacci = function (a) {
+				var i,
+					result = [];
+				if (isNumber(a)) {
+					// Fibonacci
+					result.push(0);
+					if (a === 0) {
+						return result;
+					}
+					result.push(1);
+					if (a === 1) {
+						return result;
+					}
+					for (i = 2; i < a; i++) {
+						result.push(result[i - 2] + result[i - 1]);
+					}
+					return result;
+				}
+				error(getTypeError('t.fibonacci', [a]));
+			};
+
+			$e.primes = function (a) {
+				var i,
+					result = [];
+				if (isNumber(a)) {
+					// primes
+					i = 0;
+					while (result.length < a) {
+						i++;
+						if (isPrime(i)) {
+							result.push(i);
+						}
+					}
+					return result;
+				}
+				error(getTypeError('t.primes', [a]));
+			};
+
+			$e.triangles = function (a) {
+				var i,
+					current,
+					result = [];
+				if (isNumber(a)) {
+					// triangles
+					i = 0;
+					current = 0;
+					while (result.length < a) {
+						i++;
+						current += i;
+						result.push(current);
+					}
+					return result;
+				}
+				error(getTypeError('t.triangles', [a]));
+			};
+
+			$e.uniques = function (a) {
+				var i,
+					result = [];
+				if (isArray(a)) {
+					// uniques
+					for (i = 0; i < a.length; i++) {
+						if (result.indexOf(a[i]) === -1) {
+							result.push(a[i]);
+						}
+					}
+					return result;
+				}
+				error(getTypeError('t.uniques', [a]));
+			};
+
 			$e.divideSplit = function (a, b) {
 				var i,
 					result = [];
@@ -188,6 +536,13 @@
 					// element-wise divide
 					for (i = 0; i < (a.length < b.length ? a.length : b.length); i++) {
 						result.push(a[i] / b[i]);
+					}
+					return result;
+				}
+				if (isNumber(a) && isArray(b)) {
+					// element-wise divide
+					for (i = 0; i < b.length; i++) {
+						result.push(a / b[i]);
 					}
 					return result;
 				}
@@ -234,7 +589,7 @@
 			};
 
 			$e.lessThanLowerSlice = function (a, b) {
-				if ((isNumber(a) || isString(a)) && (isNumber(b) && isString(b))) {
+				if ((isNumber(a) || isString(a)) && (isNumber(b) || isString(b))) {
 					// less than
 					return a < b;
 				}
@@ -246,9 +601,9 @@
 			};
 
 			$e.greaterThanUpperSlice = function (a, b) {
-				if ((isNumber(a) || isString(a)) && (isNumber(b) && isString(b))) {
+				if ((isNumber(a) || isString(a)) && (isNumber(b) || isString(b))) {
 					// greater than
-					return a < b;
+					return a > b;
 				}
 				if (isArray(a) && isNumber(b)) {
 					if (a.length - b < 0) {
@@ -272,6 +627,14 @@
 					return b[a];
 				}
 				error(getTypeError('t.getLookupIndex', [a, b]));
+			};
+
+			$e.all = function (a, b) {
+				if (isString(a) || isNumber(a) || isArray(a)) {
+					// any
+					return $e.range(a).every(b);
+				}
+				error(getTypeError('t.all', [a, b]));
 			};
 
 			$e.leftShiftRotate = function (a, b) {
@@ -372,9 +735,17 @@
 			};
 
 			$e.max = function (a) {
+				var i,
+					result;
 				if (isArray(a)) {
 					// maximum
-					return Math.max.apply(null, a);
+					result = -Infinity;
+					for (i = 0; i < a.length; i++) {
+						if (a[i] > result) {
+							result = a[i];
+						}
+					}
+					return result;
 				}
 				error(getTypeError('t.max', [a]));
 			};
@@ -385,6 +756,10 @@
 				if (isNumber(a) && isNumber(b)) {
 					// base 10 to base a
 					return b.toString(a);
+				}
+				if (isString(a) && isNumber(b)) {
+					// base a to base 10
+					return parseInt(a, b);
 				}
 				if (isNumber(a) && isString(b)) {
 					// character codes of string in base a
@@ -467,17 +842,35 @@
 			};
 
 			$e.min = function (a) {
+				var i,
+					result;
 				if (isArray(a)) {
 					// minimum
-					return Math.min.apply(null, a);
+					result = Infinity;
+					for (i = 0; i < a.length; i++) {
+						if (a[i] < result) {
+							result = a[i];
+						}
+					}
+					return result;
 				}
 				error(getTypeError('t.min', [a]));
 			};
 
 			$e.round = function (a) {
-				if (isNumber(a)) {
+				var result,
+					i;
+				if (isNumber(a) || isString(a)) {
 					// round
 					return Math.round(a);
+				}
+				if (isArray(a)) {
+					// round
+					result = deepCopy(a);
+					for (i = 0; i < result.length; i++) {
+						result[i] = Math.round(result[i]);
+					}
+					return result;
 				}
 				error(getTypeError('t.round', [a]));
 			};
@@ -580,6 +973,14 @@
 				error(getTypeError('t.setLookupIndex', [a, b, c]));
 			};
 
+			$e.any = function (a, b) {
+				if (isString(a) || isNumber(a) || isArray(a)) {
+					// any
+					return $e.range(a).some(b);
+				}
+				error(getTypeError('t.any', [a, b]));
+			};
+
 			$e.charCode = function (a) {
 				if (isString(a)) {
 					// character code
@@ -598,6 +999,14 @@
 					return a[a.length - 1];
 				}
 				error(getTypeError('t.expEnd', [a]));
+			};
+
+			$e.filter = function (a, b) {
+				if (isString(a) || isNumber(a) || isArray(a)) {
+					// filter
+					return $e.range(a).filter(b);
+				}
+				error(getTypeError('t.filter', [a, b]));
 			};
 
 			$e.indexOf = function (a, b) {
@@ -647,7 +1056,15 @@
 				error(getTypeError('t.lnLength', [a]));
 			};
 
-			$e.print = function (a) {
+			$e.map = function (a, b) {
+				if (isString(a) || isNumber(a) || isArray(a)) {
+					// map
+					return $e.range(a).map(b);
+				}
+				error(getTypeError('t.map', [a, b]));
+			};
+
+			$e.print = function (a, b) {
 				// write to output stream
 				var result = a;
 				if (result === undefined) {
@@ -656,7 +1073,12 @@
 				if (isArray(a)) {
 					a = JSON.stringify(a);
 				}
-				print(a + '\n');
+				if (b && printedAlready) {
+					print('\n' + a);
+				} else {
+					printedAlready = true;
+					print(a);
+				}
 				return result;
 			};
 
@@ -666,25 +1088,9 @@
 			};
 
 			$e.range = function (a) {
-				var i,
-					result = [];
-				if (isNumber(a)) {
+				if (isNumber(a) || isString(a) || isArray(a)) {
 					// range
-					for (i = 0; i < a; i++) {
-						result.push(i);
-					}
-					return result;
-				}
-				if (isString(a)) {
-					// range
-					for (i = 0; i < a.length; i++) {
-						result.push(a[i]);
-					}
-					return result;
-				}
-				if (isArray(a)) {
-					// range
-					return deepCopy(a);
+					return range(a);
 				}
 				error(getTypeError('t.range', [a]));
 			};
@@ -694,7 +1100,11 @@
 					result;
 				if (isArray(a)) {
 					// sum
-					result = '';
+					if (a.every(function(v){ return isNumber(v); })) {
+						result = 0;
+					} else {
+						result = '';
+					}
 					for (i = 0; i < a.length; i++) {
 						result += a[i];
 					}
@@ -717,6 +1127,14 @@
 					return a.slice(1, a.length);
 				}
 				error(getTypeError('t.tail', [a]));
+			};
+
+			$e.reduce = function (a, b) {
+				if (isString(a) || isNumber(a) || isArray(a)) {
+					// reduce
+					return $e.range(a).reduce(b);
+				}
+				error(getTypeError('t.reduce', [a, b]));
 			};
 
 			$e.elementWiseAdd = function (a, b) {
@@ -782,7 +1200,7 @@
 			return $e;
 		}());
 
-		function lexer(expression, operators, variables) {
+		function lexer(expression, operators) {
 			var character,
 				previousCharacter,
 				position = 0,
@@ -801,11 +1219,11 @@
 
 			function peek(amount) {
 				amount = amount || 1;
-				return expression[position + amount];
+				return expression.substr(position + 1, amount);
 			}
 
 			function addToken(type, value, printable) {
-				tokens.push({type: type, value: value, printable: printable, splat: value === '#'});
+				tokens.push({type: type, value: value, printable: printable, splat: value === ':'});
 			}
 
 			function isOperator(value) {
@@ -840,14 +1258,24 @@
 				} else if (isEscaped(previousCharacter)) { // escaped
 					addToken('string', character, !isWhiteSpace(previousCharacter));
 					read();
+				} else if (isVariable(character + peek(2))) { // three character variables
+					addToken('variable', character + peek(2), !isWhiteSpace(previousCharacter));
+					read();
+					read();
+					read();
+				} else if (isOperator(character + peek(2))) { // three character operators
+					addToken('operator', character + peek(2), !isWhiteSpace(previousCharacter));
+					read();
+					read();
+					read();
 				} else if (isOperator(character + peek(1))) { // two character operators
 					addToken('operator', character + peek(1), !isWhiteSpace(previousCharacter));
 					read();
 					read();
-				} else if (isOperator(character)) { // single character operators
+				} else if (isOperator(character)) { // one character operators
 					addToken('operator', character, !isWhiteSpace(previousCharacter));
 					read();
-				} else if (isVariable(character)) { // variables
+				} else if (isVariable(character)) { // one character variables
 					addToken('variable', character, !isWhiteSpace(previousCharacter));
 					read();
 				} else if (isDigit(character)) { // number
@@ -855,7 +1283,7 @@
 					while (isDigit(read()) && !eof) {
 						number += character;
 					}
-					if (character === '.') {
+					if (character === '.' && isDigit(peek(1))) {
 						do {
 							number += character;
 						} while (isDigit(read()) && !eof);
@@ -883,7 +1311,7 @@
 			return tokens;
 		}
 
-		function createOperators(variables) {
+		function createOperators() {
 			var $o = {},
 				getVariable;
 
@@ -922,20 +1350,33 @@
 			}
 
 			operator('!', null, 1, true, -1, function (a) { return '(!' + a + ')'; });
-			operator('#', null, 1, false, -1, function (a) { return a; });
 			operator('%', 't.mod', 2, true, -1, function (a, b) { return 't.mod(' + a + ',' + b + ')'; });
 			operator('&', 't.and', 2, true, -1, function (a, b) { return 't.and(' + a + ',' + b + ')'; });
 			operator('*', 't.multiplyRepeat', 2, true, -1, function (a, b) { return 't.multiplyRepeat(' + a + ',' + b + ')'; });
 			operator('+', 't.addConcat', 2, true, -1, function (a, b) { return 't.addConcat(' + a + ',' + b + ')'; });
 			operator(',', 't.pair', 2, true, -1, function (a, b) { return 't.pair(' + a + ',' + b + ')'; });
 			operator('-', 't.subtractRemove', 2, true, -1, function (a, b) { return 't.subtractRemove(' + a + ',' + b + ')'; });
+			operator('.ad', 't.allDivisors', 1, true, -1, function (a) { return 't.allDivisors(' + a + ')'; });
+			operator('.cn', 't.combinations', 2, true, -1, function (a, b) { return 't.combinations(' + a + ',' + b + ')'; });
+			operator('.gc', 't.greatestCommonDivisor', 1, true, -1, function (a) { return 't.greatestCommonDivisor(' + a + ')'; });
+			operator('.ip', 't.isPalindrome', 1, true, -1, function (a) { return 't.isPalindrome(' + a + ')'; });
+			operator('.lc', 't.leastCommonMultiple', 1, true, -1, function (a) { return 't.leastCommonMultiple(' + a + ')'; });
+			operator('.mo', 't.multipleOf', 2, true, -1, function (a, b) { return 't.multipleOf(' + a + ',' + b + ')'; });
+			operator('.pd', 't.primeDecomposition', 1, true, -1, function (a) { return 't.primeDecomposition(' + a + ')'; });
+			operator('.sc', 't.collatz', 1, true, -1, function (a) { return 't.collatz(' + a + ')'; });
+			operator('.sf', 't.fibonacci', 1, true, -1, function (a) { return 't.fibonacci(' + a + ')'; });
+			operator('.sp', 't.primes', 1, true, -1, function (a) { return 't.primes(' + a + ')'; });
+			operator('.st', 't.triangles', 1, true, -1, function (a) { return 't.triangles(' + a + ')'; });
+			operator('.un', 't.uniques', 1, true, -1, function (a) { return 't.uniques(' + a + ')'; });
 			operator('/', 't.divideSplit', 2, true, -1, function (a, b) { return 't.divideSplit(' + a + ',' + b + ')'; });
+			operator(':', null, 1, false, -1, function (a) { return a; });
 			operator(';', null, 0, false, -1, function () { return ';'; });
 			operator('<', 't.lessThanLowerSlice', 2, true, -1, function (a, b) { return 't.lessThanLowerSlice(' + a + ',' + b + ')'; });
 			operator('=', null, 2, false, -1, function (a, b) { return a + '=' + b + ';'; });
 			operator('>', 't.greaterThanUpperSlice', 2, true, -1, function (a, b) { return 't.greaterThanUpperSlice(' + a + ',' + b + ')'; });
 			operator('?', 't.ternary', 3, true, -1, function (a, b, c) { return 't.ternary(' + a + ',' + b + ',' + c + ')'; });
 			operator('@', 't.getLookupIndex', 2, true, -1, function (a, b) { return 't.getLookupIndex(' + a + ',' + b + ')'; });
+			operator('A', 't.all', 3, true, -1, function (a, b, c) { return 't.all(' + a + ',function(' + b + '){return ' + c + ';})'; });
 			operator('B<', 't.leftShiftRotate', 2, true, -1, function (a, b) { return 't.leftShiftRotate(' + a + ',' + b + ')'; });
 			operator('B>', 't.rightShiftRotate', 2, true, -1, function (a, b) { return 't.rightShiftRotate(' + a + ',' + b + ')'; });
 			operator('C', 't.changeCaseFlatten', 1, true, -1, function (a) { return 't.changeCaseFlatten(' + a + ')'; });
@@ -944,7 +1385,10 @@
 					enumerable = getVariable();
 				return enumerable + '=t.range(' + a + ');for(' + i + '=0;' + i + '<' + enumerable + '.length;' + i + '++){' + b + '=' + enumerable + '[' + i + '];' + c + '}';
 			});
-			operator('F', null, 0, false, -1, function () { return 'false'; });
+			operator('F', null, 4, false, 4, function (a, b, c, d) {
+				var max = getVariable();
+				return max + '=' + c + ';for(' + b + '=' + a + ';' + b + '<' + max + ';' + b + '++){' + d + '}';
+			});
 			operator('Gb', null, 0, false, -1, function () { return 'break;'; });
 			operator('Gc', null, 0, false, -1, function () { return 'continue;'; });
 			operator('Gp', null, 1, true, -1, function (a) { return 't.pickRandom(' + a + ')'; });
@@ -968,15 +1412,15 @@
 			operator('Ms', 't.sin', 1, true, -1, function (a) { return 't.sin(' + a + ')'; });
 			operator('Mt', 't.tan', 1, true, -1, function (a) { return 't.tan(' + a + ')'; });
 			operator('P', 't.popRegex', 1, true, -1, function (a) { return 't.popRegex(' + a + ')'; });
+			operator('Q', 't.evaluate', 1, true, -1, function (a) { return 't.evaluate(' + a + ')'; });
 			operator('R', 't.replace', 3, true, -1, function (a, b, c) { return 't.replace(' + a + ',' + b + ',' + c + ')'; });
-			operator('T', null, 0, false, -1, function () { return 'true'; });
 			operator('U', 't.unwrap', 1, true, -1, function (a) { return 't.unwrap(' + a + ')'; });
-			operator('V', 't.evaluate', 1, true, -1, function (a) { return 't.evaluate(' + a + ')'; });
-			operator('W', null, 1, true, -1, function (a) { return '[' + a + ']'; });
+			operator('W', null, 2, false, -1, function (a, b) { return 'while(' + a + '){' + b + '}'; });
 			operator('\\', null, 1, true, -1, function (a) { return '\'' + a + '\''; });
 			operator('^', 't.pow', 2, true, -1, function (a, b) { return 't.pow(' + a + ',' + b + ')'; });
 			operator('_', 't.negate', 1, true, -1, function (a) { return 't.negate(' + a + ')'; });
 			operator('`', 't.setLookupIndex', 3, true, -1, function (a, b, c) { return 't.setLookupIndex(' + a + ',' + b + ',' + c + ')'; });
+			operator('a', 't.any', 3, true, -1, function (a, b, c) { return 't.any(' + a + ',function(' + b + '){return ' + c + ';})'; });
 			operator('b', null, 3, false, 3, function (a, b, c) {
 				var max = getVariable();
 				return max + '=' + b + ';for(' + a + '=0;' + a + '<' + max + ';' + a + '++){' + c + '}';
@@ -988,41 +1432,51 @@
 				return max + '=' + a + ';for(' + i + '=0;' + i + '<' + max + ';' + i + '++){' + b + '=' + c + ';}';
 			});
 			operator('e', 't.expEnd', 1, true, -1, function (a) { return 't.expEnd(' + a + ')'; });
-			operator('f', null, 4, false, 4, function (a, b, c, d) {
-				var max = getVariable();
-				return max + '=' + c + ';for(' + b + '=' + a + ';' + b + '<' + max + ';' + b + '++){' + d + '}';
-			});
+			operator('f', 't.filter', 3, true, -1, function (a, b, c) { return 't.filter(' + a + ',function(' + b + '){return ' + c + ';})'; });
 			operator('h', 't.head', 1, true, -1, function (a) { return 't.head(' + a + ')'; });
 			operator('j', 't.join', 2, true, -1, function (a, b) { return 't.join(' + a + ',' + b + ')'; });
 			operator('k', null, 3, false, -1, function (a, b, c) {
 				var expand = getVariable();
-				return 'var ' + expand + '=' + b + ';' + a + '=' + expand + '[0];' + c + '=' + expand + '[1];';
+				return expand + '=' + b + ';' + a + '=' + expand + '[0];' + c + '=' + expand + '[1];';
 			});
 			operator('l', 't.lnLength', 1, true, -1, function (a) { return 't.lnLength(' + a + ')'; });
-			operator('m', null, 3, true, -1, function (a, b, c) {
-				return 't.range(' + a + ').map(function(' + b + '){return ' + c + ';})';
-			});
-			operator('p', 't.print', 1, false, -1, function (a) { return 't.print(' + a + ');'; });
+			operator('m', 't.map', 3, true, -1, function (a, b, c) { return 't.map(' + a + ',function(' + b + '){return ' + c + ';})'; });
+			operator('p', 't.print', 1, false, -1, function (a) { return 't.print(' + a + ',false);'; });
 			operator('q', 't.equal', 2, true, -1, function (a, b) { return 't.equal(' + a + ',' + b + ')'; });
 			operator('r', 't.range', 1, true, -1, function (a) { return 't.range(' + a + ')'; });
 			operator('s', 't.sum', 1, true, -1, function (a) { return 't.sum(' + a + ')'; });
 			operator('t', 't.tail', 1, true, -1, function (a) { return 't.tail(' + a + ')'; });
+			operator('u', 't.reduce', 4, true, -1, function (a, b, c, d) {return 't.reduce(' + a + ',function(' + b + ',' + c + '){return ' + d + ';})'; });
 			operator('v', 't.elementWiseAdd', 2, true, -1, function (a, b) { return 't.elementWiseAdd(' + a + ',' + b + ')'; });
+			operator('w', null, 1, true, -1, function (a) { return '[' + a + ']'; });
 			operator('|', 't.or', 2, true, -1, false, function (a, b) { return 't.or(' + a + ',' + b + ')'; });
-			operator('~', 't.compare', 3, true, -1, function (a, b, c) { return 't.compare(' + a + ',' + b + ',' + c + ')'; });
+			operator('~', 't.compare', 2, true, -1, function (a, b) { return 't.compare(' + a + ',' + b + ')'; });
 			return $o;
 		}
 
-		function compiler(tokens, operators, variables) {
+		function compiler(tokens, operators) {
 			var stack = [],
 				token,
 				args,
 				i,
-				output = '',
 				variable,
-				lastArg;
+				output = '',
+				lastArg,
+				referencedVariables = [];
 
-			while (tokens.length >  0) {
+			// remove unreferenced variables
+			for (i = 0; i < tokens.length; i++) {
+				if (tokens[i].type === 'variable' && referencedVariables.indexOf(tokens[i].value) === -1) {
+					referencedVariables.push(tokens[i].value);
+				}
+			}
+			for (variable in variables) {
+				if (variables.hasOwnProperty(variable) && referencedVariables.indexOf(variable) === -1) {
+					delete variables[variable];
+				}
+			}
+
+			while (tokens.length > 0) {
 				token = tokens.pop();
 				if (token.type === 'operator' && operators[token.value]) { // operator
 					args = [];
@@ -1037,7 +1491,7 @@
 						}
 						if (!operators[token.value].printable && operators[token.value].lastPrintable === args.length + 1) {
 							if (lastArg.printable) {
-								lastArg.value = 't.print(' + lastArg.value + ');';
+								lastArg.value = 't.print(' + lastArg.value + ',true);';
 							}
 						}
 						args.push(lastArg.value);
@@ -1062,15 +1516,15 @@
 					output += ',' + variable;
 				}
 			}
-			output += '){t=this;';
+			output += '){';
 			for (i = stack.length - 1; i >= 0; i--) {
 				if (stack[i].printable) {
-					output += 't.print(' + stack[i].value + ');';
+					output += 't.print(' + stack[i].value + ',true);';
 				} else {
 					output += stack[i].value;
 				}
 			}
-			output += '}.call(environment,0';
+			output += '}(environment';
 			for (variable in variables) {
 				if (variables.hasOwnProperty(variable)) {
 					output += ',' + JSON.stringify(variables[variable]);
@@ -1088,12 +1542,50 @@
 			options.debug = options.debug || false;
 			print = options.print || function (output) { console.log(output); };
 
-			var variables = {},
-				operators = {},
-				tokens = [],
-				compiled;
+			var compiled,
+				operators = createOperators();
 
 			// variables
+			variables = {
+				N: '\n',
+				X: 0,
+				Y: 1,
+				Z: 10,
+				x: [],
+				y: ' ',
+				z: 'abcdefghijklmnopqrstuvwxyz',
+				$hw: 'Hello, world!',
+				$tt: 'Touton',
+				// constants
+				$ec: 2.718281828459045,
+				$gr: 1.618033988749895,
+				$pi: 3.141592653589793,
+				$pc: 1.4142135623730951,
+				$rh: 0.7071067811865476,
+				$tk: 1e4,
+				$hk: 1e5,
+				// SI prefixes
+				$sy: 1e-24,
+				$sz: 1e-21,
+				$sa: 1e-18,
+				$sf: 1e-15,
+				$sp: 1e-12,
+				$sn: 1e-9,
+				$su: 1e-6,
+				$sm: 1e-3,
+				$sc: 1e-2,
+				$sd: 1e-1,
+				$sh: 1e2,
+				$sk: 1e3,
+				$sM: 1e6,
+				$sG: 1e9,
+				$sT: 1e12,
+				$sP: 1e15,
+				$sE: 1e18,
+				$sZ: 1e21,
+				$sY: 1e24
+			};
+
 			if (options.input.length === 0) {
 				variables.i = 0;
 			} else if (options.input.length === 1) {
@@ -1102,16 +1594,7 @@
 				variables.i = options.input;
 			}
 
-			variables.X = 0;
-			variables.Y = 1;
-			variables.Z = 10;
-			variables.x = [];
-			variables.y = ' ';
-			variables.z = 'abcdefghijklmnopqrstuvwxyz';
-
-			operators = createOperators(variables);
-			tokens = lexer(options.expression, operators, variables);
-			compiled = compiler(tokens, operators, variables);
+			compiled = compiler(lexer(options.expression, operators), operators);
 			if (options.debug) {
 				print(compiled + '\n');
 			}
